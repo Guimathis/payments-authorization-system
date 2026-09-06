@@ -1,0 +1,17 @@
+.idea
+.junie
+target/
+**/target/
+.env
+**/.env
+.env.test
+**/.env.test
+**/.mvn
+**/.mvn/
+**/mvnw
+**/mvnw.cmd
+.mvn/
+.mvn
+mvnw
+mvnw.cmd
+/.agents/
