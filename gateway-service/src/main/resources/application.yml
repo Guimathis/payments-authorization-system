@@ -10,23 +10,27 @@ spring:
         - id: authorization-payments-route
           uri: ${AUTHORIZATION_SERVICE_URL:http://localhost:8081}
           predicates:
-            - Path=/api/v1/payments/**
+            - Path=/api/v1/payments, /api/v1/payments/**
         - id: antifraud-evaluations-route
           uri: ${ANTIFRAUD_SERVICE_URL:http://localhost:8082}
           predicates:
-            - Path=/api/v1/antifraud/**
+            - Path=/api/v1/antifraud, /api/v1/antifraud/**
         - id: authorization-service
           uri: ${AUTHORIZATION_SERVICE_URL:http://localhost:8081}
           predicates:
             - Path=/authorization-service/v3/api/docs
-          filters:
-            - RewritePath=/authorization-service/v3/api/docs, /v3/api-docs
         - id: antifraud-service
           uri: ${ANTIFRAUD_SERVICE_URL:http://localhost:8082}
           predicates:
             - Path=/antifraud-service/v3/api/docs
-          filters:
-            - RewritePath=/antifraud-service/v3/api/docs, /v3/api-docs
+        - id: ledger-accounts-route
+          uri: ${LEDGER_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/v1/accounts, /api/v1/accounts/**
+        - id: ledger-service
+          uri: ${LEDGER_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/ledger-service/v3/api/docs
 
 management:
   endpoints:
@@ -44,6 +48,8 @@ springdoc:
         url: /authorization-service/v3/api/docs
       - name: antifraud-service
         url: /antifraud-service/v3/api/docs
+      - name: ledger-service
+        url: /ledger-service/v3/api/docs
 
 logging:
   level:

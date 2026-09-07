@@ -37,6 +37,9 @@ class AntifraudResilienceTest {
     @MockBean
     private AntifraudClient antifraudClient;
 
+    @MockBean
+    private com.payments.authorization.producer.PaymentEventProducer paymentEventProducer;
+
     @Test
     @DisplayName("Critério 3: Quando o antifraude falha/cai, aciona fallback contingencial aprovando valores <= R$ 500,00")
     void shouldApproveInContingencyWhenAntifraudFailsForLowAmount() {

@@ -25,5 +25,7 @@ class GatewayRouteTest {
         assertThat(routes).anyMatch(route -> route.getId().equals("antifraud-evaluations-route"));
         assertThat(routes).anyMatch(route -> route.getId().equals("authorization-service"));
         assertThat(routes).anyMatch(route -> route.getId().equals("antifraud-service"));
+        assertThat(routes).anyMatch(route -> route.getId().equals("ledger-accounts-route"));
+        assertThat(routes).anyMatch(route -> route.getId().equals("ledger-service"));
     }
 }

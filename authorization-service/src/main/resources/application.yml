@@ -22,6 +22,13 @@ spring:
   jackson:
     serialization:
       write-dates-as-timestamps: false
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
   cloud:
     openfeign:
       client:
@@ -30,6 +37,11 @@ spring:
             connect-timeout: 800
             read-timeout: 800
             logger-level: basic
+
+app:
+  kafka:
+    topics:
+      transacao-autorizada: transacao-autorizada
 
 antifraud:
   service:

@@ -87,7 +87,7 @@ payments-fraud-system/
 Utilize este checklist para acompanhar e marcar o avanço das 5 fases de implementação:
 
 - [x] **Fase 1: Núcleo Síncrono do Domínio** (Gateway, Autorizador, Antifraude, Idempotência e Resilience4j)
-- [ ] **Fase 2: Primeiro Contato com Kafka** (Producer direto no Autorizador, Consumers no Ledger e Notificação)
+- [x] **Fase 2: Primeiro Contato com Kafka** (Producer direto no Autorizador, Consumers no Ledger e Notificação)
 - [ ] **Fase 3: Transactional Outbox e Reprocessamento** (Outbox Polling, Idempotência de Consumo e DLQ)
 - [ ] **Fase 4: Observabilidade com OpenTelemetry** (OTel Collector, Tempo, Prometheus e Dashboard RED no Grafana)
 - [ ] **Fase 5: Testes de Resiliência & Caos** (Injeção de falhas com Toxiproxy, validação de Circuit Breaker e k6)
@@ -192,19 +192,19 @@ Estabelecer o fluxo síncrono ponta a ponta entre `gateway-service`, `authorizat
 Integrar o Apache Kafka na infraestrutura do Docker Compose e implementar a mensageria assíncrona básica: o `authorization-service` atua como Producer publicando eventos de transações autorizadas, enquanto `ledger-service` e `notification-service` atuam como Consumers básicos com semântica *at-least-once*.
 
 #### 📋 Checklist de Tarefas da Fase 2
-- [ ] Adicionar Apache Kafka (modo KRaft ou Zookeeper) no `docker-compose.yml`.
-- [ ] Criar o tópico `transacao-autorizada` (3 partições, fator de replicação 1 para ambiente local).
-- [ ] Configurar Spring Kafka Producer no `authorization-service`:
-  - [ ] Publicar evento `PaymentAuthorizedEvent` logo após a gravação da transação no banco.
-  - [ ] Utilizar `account_id` como chave de partição do Kafka (garantindo ordenação por conta).
-- [ ] Criar o microsserviço `ledger-service` (Spring Boot 3, Spring Data JPA, PostgreSQL, Spring Kafka Consumer):
-  - [ ] Criar migration Flyway para a tabela `accounts` e `ledger_entries`.
-  - [ ] Configurar `@KafkaListener` no tópico `transacao-autorizada` (Consumer Group: `ledger-group`).
-  - [ ] Ao receber o evento, debitar o valor do saldo da conta e criar um registro contábil de débito.
-- [ ] Criar o microsserviço `notification-service` (Spring Boot 3, Spring Kafka Consumer):
-  - [ ] Configurar `@KafkaListener` no tópico `transacao-autorizada` (Consumer Group: `notification-group`).
-  - [ ] Ao receber o evento, gerar log formatado simulando o envio de push/SMS para o cliente.
-- [ ] Testar a entrega ponta a ponta: pagamento submetido no Gateway $\rightarrow$ autorizado $\rightarrow$ saldo atualizado no Ledger e alerta logado no Notification.
+- [x] Adicionar Apache Kafka (modo KRaft ou Zookeeper) no `docker-compose.yml`.
+- [x] Criar o tópico `transacao-autorizada` (3 partições, fator de replicação 1 para ambiente local).
+- [x] Configurar Spring Kafka Producer no `authorization-service`:
+  - [x] Publicar evento `PaymentAuthorizedEvent` logo após a gravação da transação no banco.
+  - [x] Utilizar `account_id` como chave de partição do Kafka (garantindo ordenação por conta).
+- [x] Criar o microsserviço `ledger-service` (Spring Boot 3, Spring Data JPA, PostgreSQL, Spring Kafka Consumer):
+  - [x] Criar migration Flyway para a tabela `accounts` e `ledger_entries`.
+  - [x] Configurar `@KafkaListener` no tópico `transacao-autorizada` (Consumer Group: `ledger-group`).
+  - [x] Ao receber o evento, debitar o valor do saldo da conta e criar um registro contábil de débito.
+- [x] Criar o microsserviço `notification-service` (Spring Boot 3, Spring Kafka Consumer):
+  - [x] Configurar `@KafkaListener` no tópico `transacao-autorizada` (Consumer Group: `notification-group`).
+  - [x] Ao receber o evento, gerar log formatado simulando o envio de push/SMS para o cliente.
+- [x] Testar a entrega ponta a ponta: pagamento submetido no Gateway $\rightarrow$ autorizado $\rightarrow$ saldo atualizado no Ledger e alerta logado no Notification.
 
 #### 📦 Esquema do Evento Kafka (`transacao-autorizada`)
 ```json

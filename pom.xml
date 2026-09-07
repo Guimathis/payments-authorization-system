@@ -16,6 +16,8 @@
         <module>gateway-service</module>
         <module>antifraud-service</module>
         <module>authorization-service</module>
+        <module>ledger-service</module>
+        <module>notification-service</module>
     </modules>
 
     <properties>

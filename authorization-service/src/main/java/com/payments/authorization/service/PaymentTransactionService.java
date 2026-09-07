@@ -5,6 +5,8 @@ import com.payments.authorization.dto.PaymentAuthorizationRequestDto;
 import com.payments.authorization.dto.PaymentAuthorizationResponseDto;
 import com.payments.authorization.entity.Transaction;
 import com.payments.authorization.entity.TransactionStatus;
+import com.payments.authorization.event.PaymentAuthorizedEvent;
+import com.payments.authorization.producer.PaymentEventProducer;
 import com.payments.authorization.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class PaymentTransactionService {
 
     private final TransactionRepository transactionRepository;
     private final IdempotencyService idempotencyService;
+    private final PaymentEventProducer paymentEventProducer;
 
     @Transactional
     public PaymentAuthorizationResponseDto saveTransactionAndCompleteIdempotency(
@@ -54,6 +57,20 @@ public class PaymentTransactionService {
                 .build();
 
         idempotencyService.complete(idempotencyKey, responseDto);
+
+        if (isApproved) {
+            PaymentAuthorizedEvent event = PaymentAuthorizedEvent.builder()
+                    .eventId(UUID.randomUUID())
+                    .eventType("PAYMENT_AUTHORIZED")
+                    .paymentId(savedTx.getId())
+                    .accountId(savedTx.getAccountId())
+                    .merchantId(savedTx.getMerchantId())
+                    .amount(savedTx.getAmount())
+                    .currency(savedTx.getCurrency())
+                    .timestamp(savedTx.getCreatedAt())
+                    .build();
+            paymentEventProducer.sendPaymentAuthorizedEvent(event);
+        }
 
         return responseDto;
     }

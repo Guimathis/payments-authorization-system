@@ -54,6 +54,9 @@ class PaymentAuthorizationControllerTest {
     @MockBean
     private AntifraudClient antifraudClient;
 
+    @MockBean
+    private com.payments.authorization.producer.PaymentEventProducer paymentEventProducer;
+
     @BeforeEach
     void setUp() {
         transactionRepository.deleteAll();
