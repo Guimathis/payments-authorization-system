@@ -1,0 +1,51 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: authorization-payments-route
+          uri: ${AUTHORIZATION_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/v1/payments/**
+        - id: antifraud-evaluations-route
+          uri: ${ANTIFRAUD_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/v1/antifraud/**
+        - id: authorization-service
+          uri: ${AUTHORIZATION_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/authorization-service/v3/api/docs
+          filters:
+            - RewritePath=/authorization-service/v3/api/docs, /v3/api-docs
+        - id: antifraud-service
+          uri: ${ANTIFRAUD_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/antifraud-service/v3/api/docs
+          filters:
+            - RewritePath=/antifraud-service/v3/api/docs, /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: authorization-service
+        url: /authorization-service/v3/api/docs
+      - name: antifraud-service
+        url: /antifraud-service/v3/api/docs
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG

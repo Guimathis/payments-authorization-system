@@ -1,0 +1,19 @@
+server:
+  port: ${SERVER_PORT:8082}
+
+spring:
+  application:
+    name: antifraud-service
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+springdoc:
+  api-docs:
+    path: /antifraud-service/v3/api/docs
+  override-server-url: true
+
+logging:
+  level:
+    root: INFO
+    com.payments.antifraud: DEBUG

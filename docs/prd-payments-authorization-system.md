@@ -86,7 +86,7 @@ payments-fraud-system/
 
 Utilize este checklist para acompanhar e marcar o avanço das 5 fases de implementação:
 
-- [ ] **Fase 1: Núcleo Síncrono do Domínio** (Gateway, Autorizador, Antifraude, Idempotência e Resilience4j)
+- [x] **Fase 1: Núcleo Síncrono do Domínio** (Gateway, Autorizador, Antifraude, Idempotência e Resilience4j)
 - [ ] **Fase 2: Primeiro Contato com Kafka** (Producer direto no Autorizador, Consumers no Ledger e Notificação)
 - [ ] **Fase 3: Transactional Outbox e Reprocessamento** (Outbox Polling, Idempotência de Consumo e DLQ)
 - [ ] **Fase 4: Observabilidade com OpenTelemetry** (OTel Collector, Tempo, Prometheus e Dashboard RED no Grafana)
@@ -104,28 +104,28 @@ Utilize este checklist para acompanhar e marcar o avanço das 5 fases de impleme
 Estabelecer o fluxo síncrono ponta a ponta entre `gateway-service`, `authorization-service` e `antifraud-service` via REST/OpenFeign, garantindo idempotência com chave no header e proteção de falhas do antifraude com Resilience4j (Timeout, Retry e Circuit Breaker).
 
 #### 📋 Checklist de Tarefas da Fase 1
-- [ ] Configurar o projeto base e o `docker-compose.yml` inicial (PostgreSQL para `authorization-service`).
-- [ ] Criar o microsserviço `antifraud-service` (Spring Boot 3, Spring Web, SpringDoc OpenAPI).
-  - [ ] Implementar endpoint `POST /api/v1/antifraud/evaluations`.
-  - [ ] Implementar regra determinística de avaliação de risco:
+- [x] Configurar o projeto base e o `docker-compose.yml` inicial (PostgreSQL para `authorization-service`).
+- [x] Criar o microsserviço `antifraud-service` (Spring Boot 3, Spring Web, SpringDoc OpenAPI).
+  - [x] Implementar endpoint `POST /api/v1/antifraud/evaluations`.
+  - [x] Implementar regra determinística de avaliação de risco:
     - Valor > R$ 5.000,00 ou flag `suspicious = true` $\rightarrow$ `REJECTED` (score: 95).
     - Valor $\le$ R$ 5.000,00 $\rightarrow$ `APPROVED` (score: 15).
-  - [ ] Adicionar header opcional `X-Simulate-Delay-Ms` para simular latência customizada de resposta.
-- [ ] Criar o microsserviço `authorization-service` (Spring Boot 3, Spring Data JPA, Flyway, PostgreSQL, OpenFeign, Resilience4j).
-  - [ ] Criar migrations Flyway para as tabelas `idempotency_records` e `transactions`.
-  - [ ] Criar filtro/interceptor ou Service para validação do header `Idempotency-Key`:
+  - [x] Adicionar header opcional `X-Simulate-Delay-Ms` para simular latência customizada de resposta.
+- [x] Criar o microsserviço `authorization-service` (Spring Boot 3, Spring Data JPA, Flyway, PostgreSQL, OpenFeign, Resilience4j).
+  - [x] Criar migrations Flyway para as tabelas `idempotency_records` e `transactions`.
+  - [x] Criar filtro/interceptor ou Service para validação do header `Idempotency-Key`:
     - Se a chave não existir $\rightarrow$ grava registro com status `PROCESSING`.
     - Se a chave já existir com status `PROCESSING` $\rightarrow$ retorna `409 Conflict`.
     - Se a chave já existir com status `COMPLETED` $\rightarrow$ retorna `200 OK` com o payload de resposta cacheado salvo em `response_body`.
-  - [ ] Implementar cliente Feign para o `antifraud-service` com Resilience4j:
+  - [x] Implementar cliente Feign para o `antifraud-service` com Resilience4j:
     - Timeout de 800ms.
     - Retry de 2 tentativas com backoff.
     - Circuit Breaker com fallback: quando o circuito abre ou dá timeout, aciona fallback contingencial (ex: autorizações abaixo de R$ 500 aprovadas em contingência, acima são rejeitadas preventivamente).
-  - [ ] Implementar endpoint `POST /api/v1/payments` seguindo as convenções de API e Bean Validation.
-- [ ] Criar o microsserviço `gateway-service` (Spring Cloud Gateway reativo).
-  - [ ] Configurar rotas para encaminhar `/api/v1/payments/**` para `authorization-service:8081`.
-  - [ ] Configurar repasse de headers, incluindo `Idempotency-Key`.
-- [ ] Escrever testes unitários e de integração (com Testcontainers PostgreSQL) para validação da idempotência e do fallback do circuit breaker.
+  - [x] Implementar endpoint `POST /api/v1/payments` seguindo as convenções de API e Bean Validation.
+- [x] Criar o microsserviço `gateway-service` (Spring Cloud Gateway reativo).
+  - [x] Configurar rotas para encaminhar `/api/v1/payments/**` para `authorization-service:8081`.
+  - [x] Configurar repasse de headers, incluindo `Idempotency-Key`.
+- [x] Escrever testes unitários e de integração (com Testcontainers PostgreSQL) para validação da idempotência e do fallback do circuit breaker.
 
 #### 📦 Contratos de API da Fase 1
 
