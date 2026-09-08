@@ -18,41 +18,22 @@ Plataforma distribuída de autorização de pagamentos financeiros de alta resil
 
 ## 🏛️ Arquitetura do Sistema — Fase 2 (Síncrona + Mensageria Kafka)
 
-```
-[ Cliente / Consumer ]
-        │
-        │ POST /api/v1/payments (Header: Idempotency-Key)
-        ▼
-┌───────────────────────────────┐
-│        gateway-service        │  (Spring Cloud Gateway :8080)
-│   (Roteamento + Forwarding)   │
-└──────────────┬────────────────┘
-               │
-               ▼
-┌───────────────────────────────┐
-│     authorization-service     │  (Spring Boot :8081)
-│  - Idempotency State Machine  │
-│  - PostgreSQL 16 (Flyway)     │
-│  - Feign Client + Resilience4j│
-│  - Kafka Producer (Particionado)
-└──────┬─────────────────┬──────┘
-       │                 │
-       │ POST /evaluations│ Evento assíncrono (tópico: transacao-autorizada)
-       │ (Timeout + Retry)│ Chave da partição: account_id
-       ▼                 ▼
-┌──────────────┐  ┌──────────────────────────────────────────────┐
-│antifraud-svc │  │             Apache Kafka (KRaft :9092)       │
-│    (:8082)   │  └──────────────┬────────────────────────┬──────┘
-└──────────────┘                 │                        │
-                                 ▼                        ▼
-                  ┌────────────────────────┐  ┌────────────────────────┐
-                  │     ledger-service     │  │  notification-service  │
-                  │        (:8083)         │  │        (:8084)         │
-                  │ - Consumer Group:      │  │ - Consumer Group:      │
-                  │   ledger-group         │  │   notification-group   │
-                  │ - PostgreSQL Ledger DB │  │ - Disparo simulado     │
-                  │ - Débito contábil      │  │   Push/SMS             │
-                  └────────────────────────┘  └────────────────────────┘
+```mermaid
+flowchart TD
+    Client["Cliente / Consumer"] -->|"POST /api/v1/payments<br/>(Header: Idempotency-Key)"| Gateway["gateway-service (:8080)<br/>Spring Cloud Gateway"]
+    
+    Gateway -->|"Roteamento e Forwarding"| Auth["authorization-service (:8081)<br/>• Idempotency State Machine<br/>• PostgreSQL 16 (Flyway)<br/>• Feign Client + Resilience4j<br/>• Kafka Producer (Particionado)"]
+
+    subgraph Sincrono ["Fluxo Síncrono (Decisão em Tempo Real)"]
+        Auth -->|"POST /evaluations<br/>(Timeout + Retry / Circuit Breaker)"| Antifraud["antifraud-service (:8082)"]
+    end
+
+    subgraph Assincrono ["Fluxo Assíncrono (Mensageria Kafka)"]
+        Auth -->|"Evento: transacao-autorizada<br/>Chave da partição: account_id"| Kafka[("Apache Kafka KRaft (:9092)")]
+        
+        Kafka -->|"Consumer Group: ledger-group"| Ledger["ledger-service (:8083)<br/>• PostgreSQL Ledger DB<br/>• Débito contábil"]
+        Kafka -->|"Consumer Group: notification-group"| Notification["notification-service (:8084)<br/>• Disparo simulado Push/SMS"]
+    end
 ```
 
 ---
