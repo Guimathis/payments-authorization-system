@@ -27,3 +27,11 @@ app:
   kafka:
     topics:
       transacao-autorizada: transacao-autorizada
+    consumer:
+      backoff:
+        initial-interval-ms: 50
+        multiplier: 2.0
+        max-interval-ms: 200
+        max-retries: 3
+  ledger:
+    strict-balance-check: false

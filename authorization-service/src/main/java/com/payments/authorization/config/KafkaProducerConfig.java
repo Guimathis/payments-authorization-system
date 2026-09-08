@@ -35,11 +35,21 @@ public class KafkaProducerConfig {
     }
 
     @Bean
+    @org.springframework.context.annotation.Profile("!test")
+    public NewTopic transacaoAutorizadaDlqTopic() {
+        return TopicBuilder.name(transacaoAutorizadaTopic + ".DLQ")
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
     public ProducerFactory<String, PaymentAuthorizedEvent> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        configProps.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 3000);
         configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
         return new DefaultKafkaProducerFactory<>(configProps);
     }

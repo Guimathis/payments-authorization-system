@@ -20,6 +20,24 @@ public class PaymentEventProducer {
     @Value("${app.kafka.topics.transacao-autorizada:transacao-autorizada}")
     private String transacaoAutorizadaTopic;
 
+    @Value("${app.kafka.producer.send-timeout-ms:3000}")
+    private long sendTimeoutMs;
+
+    public SendResult<String, PaymentAuthorizedEvent> sendPaymentAuthorizedEventSync(PaymentAuthorizedEvent event) throws Exception {
+        String partitionKey = event.getAccountId() != null ? event.getAccountId().toString() : event.getPaymentId().toString();
+
+        log.info("Publicando evento síncrono PaymentAuthorizedEvent no tópico {}. Chave: {}, PaymentId: {}",
+                transacaoAutorizadaTopic, partitionKey, event.getPaymentId());
+
+        CompletableFuture<SendResult<String, PaymentAuthorizedEvent>> future =
+                kafkaTemplate.send(transacaoAutorizadaTopic, partitionKey, event);
+
+        SendResult<String, PaymentAuthorizedEvent> result = future.get(sendTimeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS);
+        log.info("Confirmação de ACK recebida do broker Kafka para paymentId {}. Offset: {}, Partição: {}",
+                event.getPaymentId(), result.getRecordMetadata().offset(), result.getRecordMetadata().partition());
+        return result;
+    }
+
     public void sendPaymentAuthorizedEvent(PaymentAuthorizedEvent event) {
         String partitionKey = event.getAccountId() != null ? event.getAccountId().toString() : event.getPaymentId().toString();
 

@@ -42,6 +42,13 @@ app:
   kafka:
     topics:
       transacao-autorizada: transacao-autorizada
+    producer:
+      send-timeout-ms: 3000
+  outbox:
+    scheduler:
+      enabled: true
+    polling-interval-ms: 1000
+    batch-size: 50
 
 antifraud:
   service:

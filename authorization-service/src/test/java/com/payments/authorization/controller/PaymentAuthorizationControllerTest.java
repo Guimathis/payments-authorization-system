@@ -51,6 +51,9 @@ class PaymentAuthorizationControllerTest {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    @Autowired
+    private com.payments.authorization.repository.OutboxEventRepository outboxEventRepository;
+
     @MockBean
     private AntifraudClient antifraudClient;
 
@@ -59,6 +62,7 @@ class PaymentAuthorizationControllerTest {
 
     @BeforeEach
     void setUp() {
+        outboxEventRepository.deleteAll();
         transactionRepository.deleteAll();
         idempotencyRecordRepository.deleteAll();
 
@@ -99,6 +103,9 @@ class PaymentAuthorizationControllerTest {
 
         String firstResponseBody = firstResult.getResponse().getContentAsString();
         assertThat(transactionRepository.count()).isEqualTo(1);
+        assertThat(outboxEventRepository.count()).isEqualTo(1);
+        assertThat(outboxEventRepository.findAll().get(0).getStatus())
+                .isEqualTo(com.payments.authorization.entity.OutboxStatus.PENDING);
 
         // 2ª Chamada: deve retornar 200 OK com mesmo corpo
         MvcResult secondResult = mockMvc.perform(post("/api/v1/payments")

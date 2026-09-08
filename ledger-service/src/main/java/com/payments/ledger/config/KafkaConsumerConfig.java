@@ -1,17 +1,29 @@
 package com.payments.ledger.config;
 
 import com.payments.ledger.event.PaymentAuthorizedEvent;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +37,33 @@ public class KafkaConsumerConfig {
 
     @Value("${spring.kafka.consumer.group-id:ledger-group}")
     private String groupId;
+
+    @Value("${spring.kafka.listener.auto-startup:true}")
+    private boolean autoStartup;
+
+    @Value("${app.kafka.topics.transacao-autorizada:transacao-autorizada}")
+    private String transacaoAutorizadaTopic;
+
+    @Value("${app.kafka.consumer.backoff.initial-interval-ms:1000}")
+    private long initialIntervalMs;
+
+    @Value("${app.kafka.consumer.backoff.multiplier:2.0}")
+    private double backoffMultiplier;
+
+    @Value("${app.kafka.consumer.backoff.max-interval-ms:4000}")
+    private long maxIntervalMs;
+
+    @Value("${app.kafka.consumer.backoff.max-retries:3}")
+    private int maxRetries;
+
+    @Bean
+    @org.springframework.context.annotation.Profile("!test")
+    public NewTopic transacaoAutorizadaDlqTopic() {
+        return TopicBuilder.name(transacaoAutorizadaTopic + ".DLQ")
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
 
     @Bean
     public ConsumerFactory<String, PaymentAuthorizedEvent> consumerFactory() {
@@ -42,15 +81,44 @@ public class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
-    @Value("${spring.kafka.listener.auto-startup:true}")
-    private boolean autoStartup;
+    @Bean
+    public ProducerFactory<String, Object> dlqProducerFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        props.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
+        return new DefaultKafkaProducerFactory<>(props);
+    }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, PaymentAuthorizedEvent> kafkaListenerContainerFactory() {
+    public KafkaTemplate<String, Object> dlqKafkaTemplate() {
+        return new KafkaTemplate<>(dlqProducerFactory());
+    }
+
+    @Bean
+    public DefaultErrorHandler defaultErrorHandler(KafkaTemplate<String, Object> dlqKafkaTemplate) {
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
+                dlqKafkaTemplate,
+                (record, ex) -> new TopicPartition(record.topic() + ".DLQ", -1)
+        );
+
+        ExponentialBackOffWithMaxRetries backOff = new ExponentialBackOffWithMaxRetries(maxRetries);
+        backOff.setInitialInterval(initialIntervalMs);
+        backOff.setMultiplier(backoffMultiplier);
+        backOff.setMaxInterval(maxIntervalMs);
+
+        return new DefaultErrorHandler(recoverer, backOff);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentAuthorizedEvent> kafkaListenerContainerFactory(
+            DefaultErrorHandler defaultErrorHandler) {
         ConcurrentKafkaListenerContainerFactory<String, PaymentAuthorizedEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setAutoStartup(autoStartup);
+        factory.setCommonErrorHandler(defaultErrorHandler);
         return factory;
     }
 }

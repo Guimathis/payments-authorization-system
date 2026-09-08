@@ -16,23 +16,29 @@ Plataforma distribuída de autorização de pagamentos financeiros de alta resil
 
 ---
 
-## 🏛️ Arquitetura do Sistema — Fase 2 (Síncrona + Mensageria Kafka)
+## 🏛️ Arquitetura do Sistema — Fase 3 (Transactional Outbox + Idempotência Contábil + DLQ)
 
 ```mermaid
 flowchart TD
     Client["Cliente / Consumer"] -->|"POST /api/v1/payments<br/>(Header: Idempotency-Key)"| Gateway["gateway-service (:8080)<br/>Spring Cloud Gateway"]
     
-    Gateway -->|"Roteamento e Forwarding"| Auth["authorization-service (:8081)<br/>• Idempotency State Machine<br/>• PostgreSQL 16 (Flyway)<br/>• Feign Client + Resilience4j<br/>• Kafka Producer (Particionado)"]
+    Gateway -->|"Roteamento e Forwarding"| Auth["authorization-service (:8081)<br/>• Idempotency State Machine<br/>• PostgreSQL 16 (Flyway)<br/>• Feign Client + Resilience4j"]
 
     subgraph Sincrono ["Fluxo Síncrono (Decisão em Tempo Real)"]
         Auth -->|"POST /evaluations<br/>(Timeout + Retry / Circuit Breaker)"| Antifraud["antifraud-service (:8082)"]
     end
 
-    subgraph Assincrono ["Fluxo Assíncrono (Mensageria Kafka)"]
-        Auth -->|"Evento: transacao-autorizada<br/>Chave da partição: account_id"| Kafka[("Apache Kafka KRaft (:9092)")]
+    subgraph OutboxPattern ["Transactional Outbox (Resolução de Dual-Write)"]
+        Auth -->|"Gravação Atômica ACID<br/>@Transactional"| DBAuth[("PostgreSQL Auth DB<br/>• transactions<br/>• idempotency_records<br/>• outbox_events (PENDING)")]
+        OutboxPoller["OutboxPollingPublisher (@Scheduled)<br/>SELECT FOR UPDATE SKIP LOCKED"] -->|"Polling a cada 1s"| DBAuth
+        OutboxPoller -->|"Publicação com ACK &<br/>Marcação para status = SENT"| Kafka[("Apache Kafka KRaft (:9092)")]
+    end
+
+    subgraph Assincrono ["Fluxo Assíncrono e Resiliência"]
+        Kafka -->|"Tópico: transacao-autorizada<br/>Consumer Group: ledger-group"| Ledger["ledger-service (:8083)<br/>• Tabela processed_events (Idempotência)<br/>• Débito contábil<br/>• DefaultErrorHandler (Backoff Exp.)"]
+        Kafka -->|"Tópico: transacao-autorizada<br/>Consumer Group: notification-group"| Notification["notification-service (:8084)<br/>• Disparo simulado Push/SMS"]
         
-        Kafka -->|"Consumer Group: ledger-group"| Ledger["ledger-service (:8083)<br/>• PostgreSQL Ledger DB<br/>• Débito contábil"]
-        Kafka -->|"Consumer Group: notification-group"| Notification["notification-service (:8084)<br/>• Disparo simulado Push/SMS"]
+        Ledger -.->|"3 Retries Esgotados<br/>(1s, 2s, 4s)"| DLQ[("Kafka Tópico DLQ:<br/>transacao-autorizada.DLQ")]
     end
 ```
 
@@ -95,7 +101,7 @@ Para rodar todos os testes de todos os microsserviços do monorepo:
 ./mvnw test
 ```
 
-### Cenários Cobertos nos Testes (28 testes automatizados):
+### Cenários Cobertos nos Testes (42 testes automatizados):
 - **Garantia de Idempotência:**
   - 1ª requisição: retorna `201 Created` e grava transação no banco.
   - Replays (2ª e 3ª chamadas): retornam `200 OK` com payload cacheado sem duplicar registros.
@@ -103,10 +109,14 @@ Para rodar todos os testes de todos os microsserviços do monorepo:
 - **Resiliência e Circuit Breaker:**
   - Queda/timeout no `antifraud-service` aciona fallback contingencial sem quebrar o autorizador (`500`).
   - Valores $\le$ R$ 500,00 aprovados em contingência; $>$ R$ 500,00 rejeitados preventivamente.
-- **Mensageria com Apache Kafka (Fase 2):**
-  - Publicação de evento `PaymentAuthorizedEvent` particionado por `account_id`.
-  - Consumo independente no `ledger-service` (`ledger-group`): débito de saldo da conta e registro no livro razão contábil (`OperationType.DEBIT`).
-  - Consumo independente no `notification-service` (`notification-group`): envio simulado de push/SMS com log auditável.
+- **Transactional Outbox & Resolução de Dual-Write (Fase 3):**
+  - Persistência atômica da autorização e do evento na tabela `outbox_events` com status `PENDING`.
+  - `OutboxPollingPublisher` com query pessimista `SELECT FOR UPDATE SKIP LOCKED` e confirmação síncrona de ACK para atualizar status para `SENT`.
+  - Tolerância à indisponibilidade do broker: acumula eventos pendentes sem perda de dados se o Kafka estiver fora.
+- **Idempotência no Consumidor & DLQ (Fase 3):**
+  - Tabela `processed_events` no `ledger-service`: descarta mensagens duplicadas e garante consistência contábil.
+  - `DefaultErrorHandler` com backoff exponencial (3 tentativas: 1s, 2s, 4s).
+  - Roteamento automático de falhas irrecuperáveis (ex: erro de banco ou saldo estrito) para o tópico `transacao-autorizada.DLQ`.
 - **Gateway:**
   - Registro e resolução de rotas para pagamentos, antifraude, contas e documentação agregada.
 

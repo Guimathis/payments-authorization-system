@@ -88,7 +88,7 @@ Utilize este checklist para acompanhar e marcar o avanço das 5 fases de impleme
 
 - [x] **Fase 1: Núcleo Síncrono do Domínio** (Gateway, Autorizador, Antifraude, Idempotência e Resilience4j)
 - [x] **Fase 2: Primeiro Contato com Kafka** (Producer direto no Autorizador, Consumers no Ledger e Notificação)
-- [ ] **Fase 3: Transactional Outbox e Reprocessamento** (Outbox Polling, Idempotência de Consumo e DLQ)
+- [x] **Fase 3: Transactional Outbox e Reprocessamento** (Outbox Polling, Idempotência de Consumo e DLQ)
 - [ ] **Fase 4: Observabilidade com OpenTelemetry** (OTel Collector, Tempo, Prometheus e Dashboard RED no Grafana)
 - [ ] **Fase 5: Testes de Resiliência & Caos** (Injeção de falhas com Toxiproxy, validação de Circuit Breaker e k6)
 
@@ -233,20 +233,20 @@ Integrar o Apache Kafka na infraestrutura do Docker Compose e implementar a mens
 Resolver o problema do *dual-write* implementando o padrão **Transactional Outbox via Polling Publisher** no `authorization-service`, além de garantir resiliência aos consumidores no `ledger-service` com idempotência de consumo e redirecionamento de falhas para Dead Letter Queue (DLQ).
 
 #### 📋 Checklist de Tarefas da Fase 3
-- [ ] No `authorization-service`:
-  - [ ] Criar migration Flyway para a tabela `outbox_events` (`id`, `aggregate_type`, `aggregate_id`, `type`, `payload`, `status`, `retry_count`, `created_at`).
-  - [ ] Refatorar o fluxo de autorização: a gravação da transação e a inserção na `outbox_events` (com `status = 'PENDING'`) ocorrem na mesma anotação `@Transactional`. O envio direto ao Kafka durante a requisição HTTP é removido.
-  - [ ] Criar o componente `@Scheduled` `OutboxPollingPublisher`:
+- [x] No `authorization-service`:
+  - [x] Criar migration Flyway para a tabela `outbox_events` (`id`, `aggregate_type`, `aggregate_id`, `type`, `payload`, `status`, `retry_count`, `created_at`).
+  - [x] Refatorar o fluxo de autorização: a gravação da transação e a inserção na `outbox_events` (com `status = 'PENDING'`) ocorrem na mesma anotação `@Transactional`. O envio direto ao Kafka durante a requisição HTTP é removido.
+  - [x] Criar o componente `@Scheduled` `OutboxPollingPublisher`:
     - Execução a cada 1 segundo (configurável).
     - Query com lock pessimista seguro: `SELECT * FROM outbox_events WHERE status = 'PENDING' ORDER BY created_at ASC LIMIT 50 FOR UPDATE SKIP LOCKED`.
     - Publica no Kafka e, com confirmação do ACK, atualiza o status para `SENT`.
     - Em caso de falha de publicação, incrementa `retry_count` e registra erro.
-- [ ] No `ledger-service`:
-  - [ ] Criar migration Flyway para a tabela `processed_events` (`event_id`, `processed_at`).
-  - [ ] Implementar verificação de idempotência no consumidor: se `event_id` já existir na tabela, a mensagem é ignorada e comitada.
-  - [ ] Configurar `DefaultErrorHandler` no Spring Kafka com backoff exponencial (3 tentativas com intervalo de 1s, 2s, 4s).
-  - [ ] Configurar publicação automática no tópico `transacao-autorizada.DLQ` caso todas as tentativas de reprocessamento falhem.
-- [ ] Criar cenário de teste para simular falha no banco do ledger e comprovar que a mensagem vai para a DLQ sem travar a partição principal.
+- [x] No `ledger-service`:
+  - [x] Criar migration Flyway para a tabela `processed_events` (`event_id`, `processed_at`).
+  - [x] Implementar verificação de idempotência no consumidor: se `event_id` já existir na tabela, a mensagem é ignorada e comitada.
+  - [x] Configurar `DefaultErrorHandler` no Spring Kafka com backoff exponencial (3 tentativas com intervalo de 1s, 2s, 4s).
+  - [x] Configurar publicação automática no tópico `transacao-autorizada.DLQ` caso todas as tentativas de reprocessamento falhem.
+- [x] Criar cenário de teste para simular falha no banco do ledger e comprovar que a mensagem vai para a DLQ sem travar a partição principal.
 
 #### 📦 Estrutura da Tabela Outbox (`authorization-service`)
 ```sql
@@ -266,9 +266,9 @@ CREATE INDEX idx_outbox_status_created ON outbox_events(status, created_at);
 ```
 
 #### 🛡️ Critérios de Aceitação da Fase 3
-- [ ] Parar o container do Kafka e submeter 5 pagamentos no autorizador: as autorizações devem ser salvas no Postgres com `status = 'PENDING'` no outbox e a API deve responder com sucesso (`201 Created`).
-- [ ] Subir o Kafka novamente: o scheduler do Outbox deve processar todas as 5 mensagens pendentes, publicá-las e marcar o status como `SENT`.
-- [ ] Simular um erro irrecuperável no `ledger-service` (ex: saldo insuficiente com regra estrita): a mensagem deve sofrer 3 tentativas com backoff e ser encaminhada para o tópico `transacao-autorizada.DLQ`.
+- [x] Parar o container do Kafka e submeter 5 pagamentos no autorizador: as autorizações devem ser salvas no Postgres com `status = 'PENDING'` no outbox e a API deve responder com sucesso (`201 Created`).
+- [x] Subir o Kafka novamente: o scheduler do Outbox deve processar todas as 5 mensagens pendentes, publicá-las e marcar o status como `SENT`.
+- [x] Simular um erro irrecuperável no `ledger-service` (ex: saldo insuficiente com regra estrita): a mensagem deve sofrer 3 tentativas com backoff e ser encaminhada para o tópico `transacao-autorizada.DLQ`.
 
 ---
 

@@ -1,27 +1,34 @@
 package com.payments.authorization.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payments.authorization.client.dto.AntifraudEvaluationResponseDto;
 import com.payments.authorization.dto.PaymentAuthorizationRequestDto;
 import com.payments.authorization.dto.PaymentAuthorizationResponseDto;
+import com.payments.authorization.entity.OutboxEvent;
+import com.payments.authorization.entity.OutboxStatus;
 import com.payments.authorization.entity.Transaction;
 import com.payments.authorization.entity.TransactionStatus;
 import com.payments.authorization.event.PaymentAuthorizedEvent;
-import com.payments.authorization.producer.PaymentEventProducer;
+import com.payments.authorization.repository.OutboxEventRepository;
 import com.payments.authorization.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentTransactionService {
 
     private final TransactionRepository transactionRepository;
     private final IdempotencyService idempotencyService;
-    private final PaymentEventProducer paymentEventProducer;
+    private final OutboxEventRepository outboxEventRepository;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public PaymentAuthorizationResponseDto saveTransactionAndCompleteIdempotency(
@@ -69,7 +76,25 @@ public class PaymentTransactionService {
                     .currency(savedTx.getCurrency())
                     .timestamp(savedTx.getCreatedAt())
                     .build();
-            paymentEventProducer.sendPaymentAuthorizedEvent(event);
+
+            try {
+                String payloadJson = objectMapper.writeValueAsString(event);
+                OutboxEvent outboxEvent = OutboxEvent.builder()
+                        .aggregateType("TRANSACTION")
+                        .aggregateId(savedTx.getId().toString())
+                        .type("PAYMENT_AUTHORIZED")
+                        .payload(payloadJson)
+                        .status(OutboxStatus.PENDING)
+                        .retryCount(0)
+                        .createdAt(savedTx.getCreatedAt())
+                        .build();
+
+                outboxEventRepository.save(outboxEvent);
+                log.info("Evento salvo na outbox com status PENDING para paymentId {}", savedTx.getId());
+            } catch (JsonProcessingException e) {
+                log.error("Erro ao serializar evento para outbox_events para transação {}: {}", savedTx.getId(), e.getMessage());
+                throw new IllegalStateException("Falha ao serializar evento de outbox", e);
+            }
         }
 
         return responseDto;

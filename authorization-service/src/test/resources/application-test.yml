@@ -27,6 +27,9 @@ app:
   kafka:
     topics:
       transacao-autorizada: transacao-autorizada
+  outbox:
+    scheduler:
+      enabled: false
 
 antifraud:
   service:

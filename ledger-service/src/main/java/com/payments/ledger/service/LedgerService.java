@@ -25,11 +25,21 @@ public class LedgerService {
 
     private final AccountRepository accountRepository;
     private final LedgerEntryRepository ledgerEntryRepository;
+    private final com.payments.ledger.repository.ProcessedEventRepository processedEventRepository;
+
+    @org.springframework.beans.factory.annotation.Value("${app.ledger.strict-balance-check:false}")
+    private boolean strictBalanceCheck;
 
     @Transactional
     public void processPaymentDebit(PaymentAuthorizedEvent event) {
         log.info("Processando débito contábil para pagamento {}. Conta: {}, Valor: {} {}",
                 event.getPaymentId(), event.getAccountId(), event.getAmount(), event.getCurrency());
+
+        // 1. Verificação de idempotência: se o evento já foi processado, ignora
+        if (event.getEventId() != null && processedEventRepository.existsById(event.getEventId())) {
+            log.info("Evento {} já processado anteriormente. Ignorando para garantir idempotência contábil.", event.getEventId());
+            return;
+        }
 
         UUID accountId = event.getAccountId();
         Account account = accountRepository.findById(accountId)
@@ -45,6 +55,15 @@ public class LedgerService {
                     return accountRepository.save(newAccount);
                 });
 
+        // 2. Regra estrita de validação de saldo (se ativada)
+        if (strictBalanceCheck && account.getBalance().compareTo(event.getAmount()) < 0) {
+            log.error("Saldo insuficiente na conta {} para débito de {}. Saldo atual: {}",
+                    accountId, event.getAmount(), account.getBalance());
+            throw new com.payments.ledger.exception.BusinessRuleException(
+                    String.format("Saldo insuficiente na conta %s. Saldo atual: %s, Débito solicitado: %s",
+                            accountId, account.getBalance(), event.getAmount()));
+        }
+
         BigDecimal newBalance = account.getBalance().subtract(event.getAmount());
         account.setBalance(newBalance);
         account.setUpdatedAt(Instant.now());
@@ -58,6 +77,15 @@ public class LedgerService {
                 .createdAt(Instant.now())
                 .build();
         ledgerEntryRepository.save(entry);
+
+        // 3. Marca evento como processado para garantir idempotência
+        if (event.getEventId() != null) {
+            com.payments.ledger.entity.ProcessedEvent processedEvent = com.payments.ledger.entity.ProcessedEvent.builder()
+                    .eventId(event.getEventId())
+                    .processedAt(Instant.now())
+                    .build();
+            processedEventRepository.save(processedEvent);
+        }
 
         log.info("Débito contábil concluído com sucesso. Conta: {}, Novo Saldo: {} {}",
                 accountId, newBalance, account.getCurrency());
