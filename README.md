@@ -83,19 +83,19 @@ Serviços iniciados:
 2. Inicie os microsserviços em terminais separados:
    ```bash
    # Terminal 1: Antifraude
-   ./mvnw spring-boot:run -pl antifraud-service
+   cd antifraud-service && ./mvnw spring-boot:run
 
    # Terminal 2: Autorizador
-   ./mvnw spring-boot:run -pl authorization-service
+   cd authorization-service && ./mvnw spring-boot:run
 
    # Terminal 3: Ledger
-   ./mvnw spring-boot:run -pl ledger-service
+   cd ledger-service && ./mvnw spring-boot:run
 
    # Terminal 4: Notificação
-   ./mvnw spring-boot:run -pl notification-service
+   cd notification-service && ./mvnw spring-boot:run
 
    # Terminal 5: Gateway
-   ./mvnw spring-boot:run -pl gateway-service
+   cd gateway-service && ./mvnw spring-boot:run
    ```
 
 ---

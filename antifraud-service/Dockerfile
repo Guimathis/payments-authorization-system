@@ -1,13 +1,12 @@
-FROM eclipse-temurin:21-jdk-alpine AS builder
-WORKDIR /workspace
-COPY pom.xml ../pom.xml
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline -B || true
 COPY src ./src
-COPY pom.xml ./pom.xml
-# If running build inside docker standalone:
-RUN --mount=type=cache,target=/root/.m2 ../mvnw clean package -DskipTests || true
+RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY target/antifraud-service-*.jar app.jar
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8082
 ENTRYPOINT ["java", "-jar", "app.jar"]

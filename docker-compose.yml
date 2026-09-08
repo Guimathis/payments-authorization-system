@@ -65,9 +65,7 @@ services:
       - payments-net
 
   antifraud-service:
-    build:
-      context: ./antifraud-service
-      dockerfile: Dockerfile
+    build: ./antifraud-service
     container_name: antifraud-service
     ports:
       - "8082:8082"
@@ -77,9 +75,7 @@ services:
       - payments-net
 
   authorization-service:
-    build:
-      context: ./authorization-service
-      dockerfile: Dockerfile
+    build: ./authorization-service
     container_name: authorization-service
     ports:
       - "8081:8081"
@@ -101,9 +97,7 @@ services:
       - payments-net
 
   ledger-service:
-    build:
-      context: ./ledger-service
-      dockerfile: Dockerfile
+    build: ./ledger-service
     container_name: ledger-service
     ports:
       - "8083:8083"
@@ -122,9 +116,7 @@ services:
       - payments-net
 
   notification-service:
-    build:
-      context: ./notification-service
-      dockerfile: Dockerfile
+    build: ./notification-service
     container_name: notification-service
     ports:
       - "8084:8084"
@@ -138,9 +130,7 @@ services:
       - payments-net
 
   gateway-service:
-    build:
-      context: ./gateway-service
-      dockerfile: Dockerfile
+    build: ./gateway-service
     container_name: gateway-service
     ports:
       - "8080:8080"
@@ -154,6 +144,22 @@ services:
       - ledger-service
     networks:
       - payments-net
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8085:8080"
+    environment:
+      DYNAMIC_CONFIG_ENABLED: 'true'
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - payments-net
+
 
 networks:
   payments-net:
