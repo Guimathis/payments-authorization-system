@@ -6,6 +6,7 @@ import com.payments.authorization.client.dto.AntifraudEvaluationResponseDto;
 import com.payments.authorization.dto.PaymentAuthorizationRequestDto;
 import com.payments.authorization.dto.PaymentAuthorizationResponseDto;
 import com.payments.authorization.dto.PaymentResult;
+import com.payments.authorization.metrics.PaymentMetrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class PaymentAuthorizationService {
     private final IdempotencyService idempotencyService;
     private final AntifraudIntegrationService antifraudIntegrationService;
     private final PaymentTransactionService paymentTransactionService;
+    private final PaymentMetrics paymentMetrics;
 
     public PaymentResult processPayment(String idempotencyKey, PaymentAuthorizationRequestDto request) {
         log.info("Processando autorização de pagamento. Idempotency-Key: {}, Conta: {}, Valor: {}",
@@ -46,10 +48,13 @@ public class PaymentAuthorizationService {
             PaymentAuthorizationResponseDto responseDto = paymentTransactionService.saveTransactionAndCompleteIdempotency(
                     idempotencyKey, request, evaluationResponse);
 
+            paymentMetrics.incrementAuthorizationCount(responseDto.getStatus(), request.getPaymentMethod());
+
             return new PaymentResult(responseDto, false);
 
         } catch (Exception ex) {
             log.error("Falha durante o processamento da transação com chave {}: {}", idempotencyKey, ex.getMessage());
+            paymentMetrics.incrementAuthorizationCount("FAILED", request.getPaymentMethod() != null ? request.getPaymentMethod() : "UNKNOWN");
             idempotencyService.markAsFailed(idempotencyKey);
             throw ex;
         }

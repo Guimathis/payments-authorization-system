@@ -15,4 +15,5 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEvent, UUID> 
     List<OutboxEvent> findPendingForUpdate(@Param("limit") int limit);
 
     List<OutboxEvent> findByStatusOrderByCreatedAtAsc(OutboxStatus status);
+    long countByStatus(OutboxStatus status);
 }

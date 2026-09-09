@@ -89,7 +89,7 @@ Utilize este checklist para acompanhar e marcar o avanço das 5 fases de impleme
 - [x] **Fase 1: Núcleo Síncrono do Domínio** (Gateway, Autorizador, Antifraude, Idempotência e Resilience4j)
 - [x] **Fase 2: Primeiro Contato com Kafka** (Producer direto no Autorizador, Consumers no Ledger e Notificação)
 - [x] **Fase 3: Transactional Outbox e Reprocessamento** (Outbox Polling, Idempotência de Consumo e DLQ)
-- [ ] **Fase 4: Observabilidade com OpenTelemetry** (OTel Collector, Tempo, Prometheus e Dashboard RED no Grafana)
+- [x] **Fase 4: Observabilidade com OpenTelemetry** (OTel Collector, Tempo, Prometheus e Dashboard RED no Grafana)
 - [ ] **Fase 5: Testes de Resiliência & Caos** (Injeção de falhas com Toxiproxy, validação de Circuit Breaker e k6)
 
 ---
@@ -278,28 +278,28 @@ CREATE INDEX idx_outbox_status_created ON outbox_events(status, created_at);
 Tornar o sistema completamente observável de ponta a ponta através de instrumentação com OpenTelemetry (OTel Collector, Grafana Tempo, Prometheus e Grafana), permitindo rastrear transações distribuídas e analisar métricas pelo método RED (Rate, Errors, Duration).
 
 #### 📋 Checklist de Tarefas da Fase 4
-- [ ] Adicionar ao `docker-compose.yml`:
-  - [ ] OTel Collector (`otel/opentelemetry-collector-contrib`).
-  - [ ] Grafana Tempo (Distributed Tracing).
-  - [ ] Prometheus (Coleta de métricas via Micrometer / OTel).
-  - [ ] Grafana com datasources e dashboards pré-provisionados via YAML.
-- [ ] Instrumentar todos os microsserviços Spring Boot:
-  - [ ] Adicionar dependências `micrometer-registry-prometheus` e `opentelemetry-spring-boot-starter` (ou Java Agent OpenTelemetry).
-  - [ ] Configurar exportação de traces via OTLP (gRPC porta 4317 ou HTTP porta 4318).
-  - [ ] Garantir propagação de contexto W3C (`traceparent`) nas chamadas REST via OpenFeign e nas mensagens do Apache Kafka via headers de registro.
-- [ ] Criar métricas customizadas de negócio no `authorization-service`:
-  - [ ] Contador de autorizações por status (`payments.authorized.count`, labels: `status`, `payment_method`).
-  - [ ] Timer de latência de comunicação com o antifraude (`antifraud.evaluation.duration`).
-  - [ ] Medidor de itens pendentes no outbox (`outbox.pending.gauge`).
-- [ ] Montar Dashboard RED no Grafana com os 4 pilares:
+- [x] Adicionar ao `docker-compose.yml`:
+  - [x] OTel Collector (`otel/opentelemetry-collector-contrib`).
+  - [x] Grafana Tempo (Distributed Tracing).
+  - [x] Prometheus (Coleta de métricas via Micrometer / OTel).
+  - [x] Grafana com datasources e dashboards pré-provisionados via YAML.
+- [x] Instrumentar todos os microsserviços Spring Boot:
+  - [x] Adicionar dependências `micrometer-registry-prometheus` e `opentelemetry-spring-boot-starter` (ou Java Agent OpenTelemetry).
+  - [x] Configurar exportação de traces via OTLP (gRPC porta 4317 ou HTTP porta 4318).
+  - [x] Garantir propagação de contexto W3C (`traceparent`) nas chamadas REST via OpenFeign e nas mensagens do Apache Kafka via headers de registro.
+- [x] Criar métricas customizadas de negócio no `authorization-service`:
+  - [x] Contador de autorizações por status (`payments.authorized.count`, labels: `status`, `payment_method`).
+  - [x] Timer de latência de comunicação com o antifraude (`antifraud.evaluation.duration`).
+  - [x] Medidor de itens pendentes no outbox (`outbox.pending.gauge`).
+- [x] Montar Dashboard RED no Grafana com os 4 pilares:
   - **Rate:** Requisições por segundo (Throughput no Gateway e Autorizador).
   - **Errors:** Taxa de erro HTTP (4xx e 5xx) e contagem de mensagens na DLQ.
   - **Duration:** Gráficos de latência p50, p95 e p99.
   - **Tracing Search:** Painel integrado para clicar em um erro e visualizar o trace completo no Grafana Tempo (Gateway $\rightarrow$ Auth $\rightarrow$ Antifraud $\rightarrow$ Kafka $\rightarrow$ Ledger).
 
 #### 🛡️ Critérios de Aceitação da Fase 4
-- [ ] Executar uma requisição de pagamento via Gateway e localizar o `trace_id` correspondente no Grafana Tempo: verificar spans do Gateway, Auth, chamada Feign do Antifraude e consumo no Ledger.
-- [ ] Submeter chamadas inválidas e checar no Grafana se a taxa de erro HTTP 400 é refletida no gráfico do dashboard em menos de 15 segundos.
+- [x] Executar uma requisição de pagamento via Gateway e localizar o `trace_id` correspondente no Grafana Tempo: verificar spans do Gateway, Auth, chamada Feign do Antifraude e consumo no Ledger.
+- [x] Submeter chamadas inválidas e checar no Grafana se a taxa de erro HTTP 400 é refletida no gráfico do dashboard em menos de 15 segundos.
 
 ---
 

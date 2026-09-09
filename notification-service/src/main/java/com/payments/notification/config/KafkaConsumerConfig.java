@@ -51,6 +51,7 @@ public class KafkaConsumerConfig {
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setAutoStartup(autoStartup);
+        factory.getContainerProperties().setObservationEnabled(true);
         return factory;
     }
 }

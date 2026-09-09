@@ -56,6 +56,8 @@ public class KafkaProducerConfig {
 
     @Bean
     public KafkaTemplate<String, PaymentAuthorizedEvent> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+        KafkaTemplate<String, PaymentAuthorizedEvent> template = new KafkaTemplate<>(producerFactory());
+        template.setObservationEnabled(true);
+        return template;
     }
 }

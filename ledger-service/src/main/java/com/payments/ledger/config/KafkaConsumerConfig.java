@@ -93,7 +93,9 @@ public class KafkaConsumerConfig {
 
     @Bean
     public KafkaTemplate<String, Object> dlqKafkaTemplate() {
-        return new KafkaTemplate<>(dlqProducerFactory());
+        KafkaTemplate<String, Object> template = new KafkaTemplate<>(dlqProducerFactory());
+        template.setObservationEnabled(true);
+        return template;
     }
 
     @Bean
@@ -119,6 +121,7 @@ public class KafkaConsumerConfig {
         factory.setConsumerFactory(consumerFactory());
         factory.setAutoStartup(autoStartup);
         factory.setCommonErrorHandler(defaultErrorHandler);
+        factory.getContainerProperties().setObservationEnabled(true);
         return factory;
     }
 }
