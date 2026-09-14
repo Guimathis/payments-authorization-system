@@ -1,279 +1,825 @@
 {
   "annotations": {
-    "list": []
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": null,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 103,
+      "panels": [],
+      "title": "Status",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "default": true,
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 1,
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 1
+      },
+      "id": 104,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 0,
+        "orientation": "vertical",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": false,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "up{job!=\"otel-collector\"}",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{job}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Microservices Statuses",
+      "transparent": true,
+      "type": "gauge"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
       "id": 100,
+      "panels": [],
       "title": "⚡ RED Metrics — Overview (Rate, Errors, Duration)",
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": {
+        "default": true,
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "req/s",
             "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
             "fillOpacity": 15,
             "gradientMode": "opacity",
-            "lineWidth": 2
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
           },
           "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
         }
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
-      "id": 1,
-      "title": "📈 Rate (Throughput por Microsserviço)",
-      "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "builder",
           "expr": "sum(rate(http_server_requests_seconds_count[1m])) by (application)",
           "legendFormat": "{{application}} Throughput",
+          "range": true,
           "refId": "A"
         }
-      ]
+      ],
+      "title": "📈 Rate (Throughput por Microsserviço)",
+      "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "erros/s",
             "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
             "fillOpacity": 20,
             "gradientMode": "opacity",
-            "lineWidth": 2
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
           },
           "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
         }
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
-      "id": 2,
-      "title": "❌ Errors (Taxa de Erro HTTP 4xx e 5xx)",
-      "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
           "expr": "sum(rate(http_server_requests_seconds_count{status=~\"[45]..\"}[1m])) by (application, status)",
           "legendFormat": "{{application}} (HTTP {{status}})",
           "refId": "A"
         }
-      ]
+      ],
+      "title": "❌ Errors (Taxa de Erro HTTP 4xx e 5xx)",
+      "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": {
+        "default": true,
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Latência",
             "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
             "fillOpacity": 10,
-            "lineWidth": 2
-          },
-          "unit": "s"
-        }
-      },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 9 },
-      "id": 3,
-      "title": "⏱️ Duration (Latência p50, p95 e p99)",
-      "type": "timeseries",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket[1m])) by (le, application))",
-          "legendFormat": "{{application}} - p50",
-          "refId": "A"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[1m])) by (le, application))",
-          "legendFormat": "{{application}} - p95",
-          "refId": "B"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket[1m])) by (le, application))",
-          "legendFormat": "{{application}} - p99",
-          "refId": "C"
-        }
-      ]
-    },
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
-      "id": 101,
-      "title": "💼 Métricas de Negócio & Resiliência (Authorization Service)",
-      "type": "row"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisPlacement": "auto",
-            "fillOpacity": 25,
-            "lineWidth": 2
-          },
-          "unit": "short"
-        }
-      },
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 18 },
-      "id": 4,
-      "title": "💳 Autorizações por Status e Método",
-      "type": "timeseries",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "sum(increase(payments_authorized_count_total[1m])) by (status, payment_method)",
-          "legendFormat": "{{status}} ({{payment_method}})",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Segundos",
-            "axisPlacement": "auto",
-            "fillOpacity": 15,
-            "lineWidth": 2
-          },
-          "unit": "s"
-        }
-      },
-      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 18 },
-      "id": 5,
-      "title": "🛡️ Latência de Avaliação Antifraude",
-      "type": "timeseries",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "histogram_quantile(0.95, sum(rate(antifraud_evaluation_duration_seconds_bucket[1m])) by (le))",
-          "legendFormat": "p95 Antifraud Evaluation",
-          "refId": "A"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "rate(antifraud_evaluation_duration_seconds_sum[1m]) / rate(antifraud_evaluation_duration_seconds_count[1m])",
-          "legendFormat": "Avg Antifraud Evaluation",
-          "refId": "B"
-        }
-      ]
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 5 },
-              { "color": "red", "value": 20 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
             ]
           },
-          "unit": "short"
-        }
-      },
-      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 18 },
-      "id": 6,
-      "title": "📦 Eventos Pendentes no Outbox (Gauge)",
-      "type": "stat",
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
+          "unit": "s"
         },
-        "textMode": "auto"
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "outbox_pending_gauge",
-          "legendFormat": "Eventos Pendentes",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket[1m])) by (le, application))",
+          "legendFormat": "{{application}} - p50",
+          "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[1m])) by (le, application))",
+          "legendFormat": "{{application}} - p95",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket[1m])) by (le, application))",
+          "legendFormat": "{{application}} - p99",
+          "range": true,
+          "refId": "C"
         }
-      ]
+      ],
+      "title": "⏱️ Duration (Latência p50, p95 e p99)",
+      "type": "timeseries"
     },
     {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 25 },
-      "id": 102,
-      "title": "🔍 Distributed Tracing (Grafana Tempo)",
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 101,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 0,
+            "y": 10
+          },
+          "id": 4,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum(increase(payments_authorized_count_total[1m])) by (status, payment_method)",
+              "legendFormat": "{{status}} ({{payment_method}})",
+              "refId": "A"
+            }
+          ],
+          "title": "💳 Autorizações por Status e Método",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "default": true,
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "Segundos",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "s"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 8,
+            "y": 10
+          },
+          "id": 5,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "expr": "histogram_quantile(0.95, sum(rate(antifraud_evaluation_duration_seconds_bucket[1m])) by (le))",
+              "legendFormat": "p95 Antifraud Evaluation",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "rate(antifraud_evaluation_duration_seconds_sum[1m]) / rate(antifraud_evaluation_duration_seconds_count[1m])",
+              "legendFormat": "Avg Antifraud Evaluation",
+              "refId": "B"
+            }
+          ],
+          "title": "🛡️ Latência de Avaliação Antifraude",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "default": true,
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 5
+                  },
+                  {
+                    "color": "red",
+                    "value": 20
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 16,
+            "y": 10
+          },
+          "id": 6,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "expr": "outbox_pending_gauge",
+              "legendFormat": "Eventos Pendentes",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "📦 Eventos Pendentes no Outbox (Gauge)",
+          "type": "stat"
+        }
+      ],
+      "title": "💼 Métricas de Negócio & Resiliência (Authorization Service)",
       "type": "row"
     },
     {
-      "datasource": { "type": "tempo", "uid": "tempo" },
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 26 },
-      "id": 7,
-      "title": "🕸️ Tracing Search & Spans (Gateway ➔ Auth ➔ Antifraud ➔ Kafka ➔ Ledger)",
-      "type": "traces",
-      "targets": [
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 102,
+      "panels": [
         {
-          "datasource": { "type": "tempo", "uid": "tempo" },
-          "queryType": "search",
-          "refId": "A",
-          "serviceName": "gateway-service"
+          "datasource": {
+            "default": false,
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 24,
+            "x": 0,
+            "y": 11
+          },
+          "id": 7,
+          "targets": [
+            {
+              "datasource": {
+                "type": "tempo",
+                "uid": "tempo"
+              },
+              "filters": [
+                {
+                  "id": "service-name",
+                  "operator": "=",
+                  "scope": "resource",
+                  "tag": "service.name",
+                  "value": [
+                    "gateway-service"
+                  ],
+                  "valueType": "string"
+                },
+                {
+                  "id": "bf11181d",
+                  "operator": "=",
+                  "scope": "span"
+                }
+              ],
+              "queryType": "traceqlSearch",
+              "refId": "A",
+              "tableType": "traces"
+            }
+          ],
+          "title": "🕸️ Tracing Search & Spans (Gateway ➔ Auth ➔ Antifraud ➔ Kafka ➔ Ledger)",
+          "type": "traces"
         }
-      ]
+      ],
+      "title": "🔍 Distributed Tracing (Grafana Tempo)",
+      "type": "row"
     }
   ],
-  "refresh": "5s",
+  "refresh": "",
   "schemaVersion": 39,
-  "tags": ["payments", "red-metrics", "opentelemetry", "tempo", "phase-4"],
+  "tags": [
+    "payments",
+    "red-metrics",
+    "opentelemetry",
+    "tempo",
+    "phase-4"
+  ],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {
-    "refresh_intervals": ["5s", "10s", "30s", "1m"]
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m"
+    ]
   },
   "timezone": "browser",
   "title": "Payments Authorization — Observabilidade & RED Metrics",
   "uid": "payments-red-metrics",
-  "version": 1
+  "version": 4,
+  "weekStart": ""
 }
