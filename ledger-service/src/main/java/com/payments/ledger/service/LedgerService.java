@@ -41,6 +41,7 @@ public class LedgerService {
             return;
         }
 
+
         UUID accountId = event.getAccountId();
         Account account = accountRepository.findById(accountId)
                 .orElseGet(() -> {

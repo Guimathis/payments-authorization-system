@@ -28,6 +28,7 @@ public class PaymentTransactionService {
     private final TransactionRepository transactionRepository;
     private final IdempotencyService idempotencyService;
     private final OutboxEventRepository outboxEventRepository;
+    private final OpenTelemetryService openTelemetryService;
     private final ObjectMapper objectMapper;
 
     @Transactional
@@ -78,12 +79,15 @@ public class PaymentTransactionService {
                     .build();
 
             try {
+                String traceHeaders = objectMapper.writeValueAsString(openTelemetryService.captureTraceContext());
+
                 String payloadJson = objectMapper.writeValueAsString(event);
                 OutboxEvent outboxEvent = OutboxEvent.builder()
                         .aggregateType("TRANSACTION")
                         .aggregateId(savedTx.getId().toString())
                         .type("PAYMENT_AUTHORIZED")
                         .payload(payloadJson)
+                        .traceContext(traceHeaders)
                         .status(OutboxStatus.PENDING)
                         .retryCount(0)
                         .createdAt(savedTx.getCreatedAt())

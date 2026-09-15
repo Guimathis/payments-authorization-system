@@ -47,6 +47,10 @@ public class OutboxEvent implements Serializable {
     @Column(name = "payload", nullable = false, columnDefinition = "jsonb")
     private String payload;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "trace_context", columnDefinition = "jsonb")
+    private String traceContext;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private OutboxStatus status;

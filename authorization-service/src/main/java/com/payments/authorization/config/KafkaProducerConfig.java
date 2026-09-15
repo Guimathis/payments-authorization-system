@@ -1,6 +1,7 @@
 package com.payments.authorization.config;
 
 import com.payments.authorization.event.PaymentAuthorizedEvent;
+import io.micrometer.observation.ObservationRegistry;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -44,7 +45,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public ProducerFactory<String, PaymentAuthorizedEvent> producerFactory() {
+    public ProducerFactory<String, PaymentAuthorizedEvent> producerFactory(ObservationRegistry observationRegistry) {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -55,7 +56,9 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, PaymentAuthorizedEvent> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+    public KafkaTemplate<String, PaymentAuthorizedEvent> kafkaTemplate(ProducerFactory<String, PaymentAuthorizedEvent> producerFactory) {
+        KafkaTemplate<String, PaymentAuthorizedEvent> template = new KafkaTemplate<>(producerFactory);
+        template.setObservationEnabled(false);
+        return template;
     }
 }

@@ -9,6 +9,10 @@ spring:
       write-dates-as-timestamps: false
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    listener:
+      observation-enabled: true
+    template:
+      observation-enabled: true
     consumer:
       group-id: notification-group
       auto-offset-reset: earliest
@@ -20,6 +24,18 @@ spring:
         spring.json.value.default.type: com.payments.notification.event.PaymentAuthorizedEvent
         spring.json.use.type.headers: false
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  tracing:
+    sampling:
+      probability: 1.0 # Rastreia 100% das requisições
+  otlp:
+    tracing:
+      # Endpoint HTTP OTLP do Grafana Tempo ou Jaeger
+      endpoint: ${MANAGEMENT_OTLP_TRACING_ENDPOINT:http://localhost:4318/v1/traces}
 app:
   kafka:
     topics:

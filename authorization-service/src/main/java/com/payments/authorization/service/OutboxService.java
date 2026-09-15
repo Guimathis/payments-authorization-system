@@ -1,5 +1,6 @@
 package com.payments.authorization.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payments.authorization.entity.OutboxEvent;
 import com.payments.authorization.entity.OutboxStatus;
@@ -24,7 +25,6 @@ public class OutboxService {
 
     private final OutboxEventRepository outboxEventRepository;
     private final PaymentEventProducer paymentEventProducer;
-    private final ObjectMapper objectMapper;
 
     @Value("${app.outbox.batch-size:50}")
     private int batchSize;
@@ -41,8 +41,7 @@ public class OutboxService {
         int publishedCount = 0;
         for (OutboxEvent event : pendingEvents) {
             try {
-                PaymentAuthorizedEvent payloadEvent = objectMapper.readValue(event.getPayload(), PaymentAuthorizedEvent.class);
-                paymentEventProducer.sendPaymentAuthorizedEventSync(payloadEvent);
+                paymentEventProducer.sendPaymentAuthorizedEventSync(event);
 
                 event.setStatus(OutboxStatus.SENT);
                 event.setProcessedAt(Instant.now());

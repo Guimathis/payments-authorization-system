@@ -24,6 +24,8 @@ spring:
       write-dates-as-timestamps: false
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    template:
+      observation-enabled: true
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -38,6 +40,18 @@ spring:
             read-timeout: 800
             logger-level: basic
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  tracing:
+    sampling:
+      probability: 1.0 # Rastreia 100% das requisições
+  otlp:
+    tracing:
+      # Endpoint HTTP OTLP do Grafana Tempo ou Jaeger
+      endpoint: ${MANAGEMENT_OTLP_TRACING_ENDPOINT:http://localhost:4318/v1/traces}
 app:
   kafka:
     topics:
@@ -92,3 +106,5 @@ logging:
     root: INFO
     com.payments.authorization: DEBUG
     org.springframework.web: INFO
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
