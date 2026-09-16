@@ -45,7 +45,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public ProducerFactory<String, PaymentAuthorizedEvent> producerFactory(ObservationRegistry observationRegistry) {
+    public ProducerFactory<String, PaymentAuthorizedEvent> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -56,9 +56,9 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, PaymentAuthorizedEvent> kafkaTemplate(ProducerFactory<String, PaymentAuthorizedEvent> producerFactory) {
-        KafkaTemplate<String, PaymentAuthorizedEvent> template = new KafkaTemplate<>(producerFactory);
-        template.setObservationEnabled(false);
+    public KafkaTemplate<String, PaymentAuthorizedEvent> kafkaTemplate() {
+        KafkaTemplate<String, PaymentAuthorizedEvent> template = new KafkaTemplate<>(producerFactory());
+        template.setObservationEnabled(true);
         return template;
     }
 }

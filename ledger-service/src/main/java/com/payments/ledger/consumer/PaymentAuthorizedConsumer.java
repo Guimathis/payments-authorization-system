@@ -34,31 +34,9 @@ public class PaymentAuthorizedConsumer {
             topics = "${app.kafka.topics.transacao-autorizada:transacao-autorizada}",
             groupId = "${spring.kafka.consumer.group-id:ledger-group}"
     )
-    public void consume(ConsumerRecord<String, PaymentAuthorizedEvent> record) {
-
-
-        Context extractedContext = openTelemetry.getPropagators()
-                .getTextMapPropagator()
-                .extract(Context.current(), record.headers(), new KafkaHeadersService());
-
-        Span span = tracer.spanBuilder("ledger.process")
-                .setParent(extractedContext)
-                .setSpanKind(SpanKind.CONSUMER)
-                .setAttribute("messaging.system", "kafka")
-                .setAttribute("messaging.destination", record.topic())
-                .startSpan();
-
-        try (Scope scope = span.makeCurrent()) {
-            PaymentAuthorizedEvent event = record.value();
-            log.info("Recebido evento PaymentAuthorizedEvent no LedgerService: paymentId={}, accountId={}, amount={}",
-                    event.getPaymentId(), event.getAccountId(), event.getAmount());
-            ledgerService.processPaymentDebit(event);
-        } catch (Exception e) {
-            span.recordException(e);
-            span.setStatus(StatusCode.ERROR);
-            throw e;
-        } finally {
-            span.end();
-        }
+    public void consume(PaymentAuthorizedEvent event) {
+        log.info("Recebido evento PaymentAuthorizedEvent no LedgerService: paymentId={}, accountId={}, amount={}",
+                event.getPaymentId(), event.getAccountId(), event.getAmount());
+        ledgerService.processPaymentDebit(event);
     }
 }

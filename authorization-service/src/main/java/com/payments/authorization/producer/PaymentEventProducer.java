@@ -36,15 +36,7 @@ public class PaymentEventProducer {
         log.info("Publicando evento síncrono PaymentAuthorizedEvent no tópico {}. Chave: {}, PaymentId: {}",
                 transacaoAutorizadaTopic, partitionKey, event.getPaymentId());
 
-        SendResult<String, PaymentAuthorizedEvent> result;
-
-        ProducerRecord<String, PaymentAuthorizedEvent> record =
-                new ProducerRecord<>(transacaoAutorizadaTopic, partitionKey, event);
-
-        openTelemetryService.captureTraceContext().forEach((k, v) ->
-                record.headers().add(new RecordHeader(k, v.getBytes())));
-
-        result = kafkaTemplate.send(record).get(sendTimeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS);
+        SendResult<String, PaymentAuthorizedEvent> result = kafkaTemplate.send(transacaoAutorizadaTopic, partitionKey, event).get(sendTimeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS);
         log.info("Confirmação de ACK recebida do broker Kafka para paymentId {}. Offset: {}, Partição: {}",
                 event.getPaymentId(), result.getRecordMetadata().offset(), result.getRecordMetadata().partition());
     }

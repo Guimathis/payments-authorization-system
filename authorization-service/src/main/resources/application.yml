@@ -33,6 +33,8 @@ spring:
         spring.json.add.type.headers: false
   cloud:
     openfeign:
+      micrometer:
+        enabled: true
       client:
         config:
           default:

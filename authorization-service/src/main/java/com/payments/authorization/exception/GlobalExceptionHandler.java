@@ -1,5 +1,7 @@
 package com.payments.authorization.exception;
 
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.StatusCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -94,6 +96,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleUncaughtException(Exception ex) {
         log.error("Erro interno inesperado no authorization-service", ex);
+
+        // 1. Marca o Span atual como ERROR e grava a Exception + Stacktrace
+        Span currentSpan = Span.current();
+        if (currentSpan.getSpanContext().isValid()) {
+            currentSpan.setStatus(StatusCode.ERROR, ex.getMessage());
+            currentSpan.recordException(ex); // Grava a stacktrace completa no Span!
+        }
+
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Ocorreu um erro interno inesperado no serviço de autorização."

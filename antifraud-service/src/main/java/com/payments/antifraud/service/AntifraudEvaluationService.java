@@ -19,7 +19,6 @@ public class AntifraudEvaluationService {
 
     public AntifraudEvaluationResponseDto evaluate(AntifraudEvaluationRequestDto request, Long delayMs) {
         log.info("Recebida requisição de análise de risco para conta: {}, valor: {}", request.getAccountId(), request.getAmount());
-
         if (delayMs != null && delayMs > 0) {
             try {
                 log.info("Simulando atraso de resposta de {} ms no antifraude", delayMs);

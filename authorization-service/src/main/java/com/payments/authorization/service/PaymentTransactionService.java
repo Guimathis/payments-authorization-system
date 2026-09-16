@@ -12,6 +12,7 @@ import com.payments.authorization.entity.TransactionStatus;
 import com.payments.authorization.event.PaymentAuthorizedEvent;
 import com.payments.authorization.repository.OutboxEventRepository;
 import com.payments.authorization.repository.TransactionRepository;
+import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class PaymentTransactionService {
     private final ObjectMapper objectMapper;
 
     @Transactional
+    @Observed(name = "transaction.persist", contextualName = "salvar-transacao-e-outbox")
     public PaymentAuthorizationResponseDto saveTransactionAndCompleteIdempotency(
             String idempotencyKey,
             PaymentAuthorizationRequestDto request,

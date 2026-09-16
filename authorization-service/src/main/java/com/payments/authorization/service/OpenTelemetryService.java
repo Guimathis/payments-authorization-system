@@ -1,5 +1,6 @@
 package com.payments.authorization.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapGetter;
@@ -30,7 +31,5 @@ public class OpenTelemetryService {
                     @Override public String get(Map<String, String> c, String key) { return c.get(key); }
                 });
     }
-
-
 
 }

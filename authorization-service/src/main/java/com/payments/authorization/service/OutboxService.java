@@ -53,40 +53,26 @@ public class OutboxService {
         int publishedCount = 0;
         for (OutboxEvent event : pendingEvents) {
             try {
-                String traceContext = event.getTraceContext();
+                PaymentAuthorizedEvent payloadEvent = objectMapper.readValue(event.getPayload(), PaymentAuthorizedEvent.class);
 
-                Context parent_context = openTelemetryService.extractTraceContext(objectMapper.readValue(
-                        traceContext,
-                        new TypeReference<Map<String, String>>() {
-                        }
-                ));
+                //  Converte o trace_context salvo de volta para Map
+                Map<String, String> traceHeaders = objectMapper.readValue(
+                        event.getTraceContext(),
+                        new TypeReference<Map<String, String>>() {}
+                );
 
-                Span span = tracer.spanBuilder("outbox.publish." + event.getType())
-                        .setParent(parent_context)
-                        .setAttribute("messaging.system", "kafka")
-                        .setSpanKind(SpanKind.PRODUCER)
-                        .setAttribute("outbox.retry_count", event.getRetryCount())
-                        .startSpan();
-                try (Scope scope = span.makeCurrent()) {
-                    if (event.getRetryCount() > 0) {
-                        span.addEvent("outbox.retry", Attributes.of(AttributeKey.longKey("Attempt"), event.getRetryCount().longValue()));
-                    }
-                    PaymentAuthorizedEvent payloadEvent = objectMapper.readValue(event.getPayload(), PaymentAuthorizedEvent.class);
+                // Extrai o contexto original do OpenTelemetry
+                Context parentContext = openTelemetryService.extractTraceContext(traceHeaders);
 
+                // Ativa o contexto na thread atual temporariamente
+                try (Scope scope = parentContext.makeCurrent()) {
                     paymentEventProducer.sendPaymentAuthorizedEventSync(payloadEvent);
-                    event.setStatus(OutboxStatus.SENT);
-                    event.setProcessedAt(Instant.now());
-                    outboxEventRepository.save(event);
-                    publishedCount++;
-
-                } catch (Exception e) {
-                    span.recordException(e);
-                    span.setStatus(StatusCode.ERROR);
-                    throw e;
-                } finally {
-                    span.end();
                 }
-                log.info("Evento outbox {} publicado com sucesso e marcado como SENT", event.getId());
+
+                event.setStatus(OutboxStatus.SENT);
+                event.setProcessedAt(Instant.now());
+                outboxEventRepository.save(event);
+                publishedCount++;
             } catch (Exception ex) {
                 log.error("Falha ao publicar evento outbox [id={}, aggregateId={}]: {}",
                         event.getId(), event.getAggregateId(), ex.getMessage());
