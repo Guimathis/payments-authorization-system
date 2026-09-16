@@ -7,6 +7,14 @@ import com.payments.authorization.entity.OutboxStatus;
 import com.payments.authorization.event.PaymentAuthorizedEvent;
 import com.payments.authorization.producer.PaymentEventProducer;
 import com.payments.authorization.repository.OutboxEventRepository;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.TimeoutException;
@@ -17,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -25,6 +34,9 @@ public class OutboxService {
 
     private final OutboxEventRepository outboxEventRepository;
     private final PaymentEventProducer paymentEventProducer;
+    private final OpenTelemetryService openTelemetryService;
+    private final Tracer tracer;
+    private final ObjectMapper objectMapper;
 
     @Value("${app.outbox.batch-size:50}")
     private int batchSize;
@@ -41,12 +53,39 @@ public class OutboxService {
         int publishedCount = 0;
         for (OutboxEvent event : pendingEvents) {
             try {
-                paymentEventProducer.sendPaymentAuthorizedEventSync(event);
+                String traceContext = event.getTraceContext();
 
-                event.setStatus(OutboxStatus.SENT);
-                event.setProcessedAt(Instant.now());
-                outboxEventRepository.save(event);
-                publishedCount++;
+                Context parent_context = openTelemetryService.extractTraceContext(objectMapper.readValue(
+                        traceContext,
+                        new TypeReference<Map<String, String>>() {
+                        }
+                ));
+
+                Span span = tracer.spanBuilder("outbox.publish." + event.getType())
+                        .setParent(parent_context)
+                        .setAttribute("messaging.system", "kafka")
+                        .setSpanKind(SpanKind.PRODUCER)
+                        .setAttribute("outbox.retry_count", event.getRetryCount())
+                        .startSpan();
+                try (Scope scope = span.makeCurrent()) {
+                    if (event.getRetryCount() > 0) {
+                        span.addEvent("outbox.retry", Attributes.of(AttributeKey.longKey("Attempt"), event.getRetryCount().longValue()));
+                    }
+                    PaymentAuthorizedEvent payloadEvent = objectMapper.readValue(event.getPayload(), PaymentAuthorizedEvent.class);
+
+                    paymentEventProducer.sendPaymentAuthorizedEventSync(payloadEvent);
+                    event.setStatus(OutboxStatus.SENT);
+                    event.setProcessedAt(Instant.now());
+                    outboxEventRepository.save(event);
+                    publishedCount++;
+
+                } catch (Exception e) {
+                    span.recordException(e);
+                    span.setStatus(StatusCode.ERROR);
+                    throw e;
+                } finally {
+                    span.end();
+                }
                 log.info("Evento outbox {} publicado com sucesso e marcado como SENT", event.getId());
             } catch (Exception ex) {
                 log.error("Falha ao publicar evento outbox [id={}, aggregateId={}]: {}",
