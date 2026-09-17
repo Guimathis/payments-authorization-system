@@ -1,3 +1,8 @@
+x-shared-env: &obs-env
+  MANAGEMENT_OTLP_TRACING_ENDPOINT: http://otel-collector:4318/v1/traces
+  MANAGEMENT_OTLP_LOGGING_ENDPOINT: http://otel-collector:4318/v1/logs
+  OTEL_LOGS_EXPORTER: otlp
+
 services:
   postgres-auth:
     image: postgres:16-alpine
@@ -70,6 +75,7 @@ services:
     ports:
       - "8082:8082"
     environment:
+      <<: *obs-env
       SERVER_PORT: 8082
     networks:
       - payments-net
@@ -80,6 +86,7 @@ services:
     ports:
       - "8081:8081"
     environment:
+      <<: *obs-env
       SERVER_PORT: 8081
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-auth:5432/payments_auth_db
       SPRING_DATASOURCE_USERNAME: postgres
@@ -108,6 +115,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       STRICT_BALANCE_CHECK: "false"
+      <<: *obs-env
     depends_on:
       postgres-ledger:
         condition: service_healthy
@@ -122,6 +130,7 @@ services:
     ports:
       - "8084:8084"
     environment:
+      <<: *obs-env
       SERVER_PORT: 8084
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     depends_on:
@@ -136,6 +145,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      <<: *obs-env
       SERVER_PORT: 8080
       AUTHORIZATION_SERVICE_URL: http://authorization-service:8081
       ANTIFRAUD_SERVICE_URL: http://antifraud-service:8082
@@ -161,19 +171,29 @@ services:
     networks:
       - payments-net
 
-#otel-collector:
-#  container_name: otel-collector
-#  image: otel/opentelemetry-collector
-#  command: ["--config=/etc/otel-collector-config.yml"]
-#  volumes:
-#    - ./docker/otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
-#  ports:
-#    - "4317:4317" # OTLP gRPC
-#    - "4318:4318" # OTLP HTTP
-#  depends_on:
-#    - tempo
-#  networks:
-#    - payments-net
+  otel-collector:
+    container_name: otel-collector
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otel-collector-config.yml"]
+    volumes:
+      - ./docker/otel-collector/otel-collector-config.yml:/etc/otel-collector-config.yml
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    networks:
+      - payments-net
+
+  loki:
+    image: grafana/loki:3.5.5
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./docker/loki/loki-config.yml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - payments-net
 
   tempo:
     image: grafana/tempo:2.6.0
@@ -183,8 +203,6 @@ services:
       - ./docker/tempo/tempo.yml:/etc/tempo.yml
       - tempo_data:/var/tempo
     ports:
-      - "4317:4317" # OTLP gRPC (sua app envia para cá)
-      - "4318:4318" # OTLP HTTP
       - "3200:3200" # Porta interna do Tempo para o Grafana
     networks:
       - payments-net
@@ -205,7 +223,6 @@ services:
     networks:
       - payments-net
 
-
 networks:
   payments-net:
     driver: bridge
@@ -215,3 +232,4 @@ volumes:
   postgres_ledger_data:
   tempo_data:
   grafana_data:
+  loki_data:

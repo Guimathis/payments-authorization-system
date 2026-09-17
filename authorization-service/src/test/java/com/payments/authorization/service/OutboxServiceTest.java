@@ -83,7 +83,7 @@ class OutboxServiceTest {
         assertThat(published).isEqualTo(1);
         assertThat(outboxEvent.getStatus()).isEqualTo(OutboxStatus.SENT);
         assertThat(outboxEvent.getProcessedAt()).isNotNull();
-        verify(paymentEventProducer).sendPaymentAuthorizedEventSync(any(OutboxEvent.class));
+        verify(paymentEventProducer).sendPaymentAuthorizedEventSync(any(PaymentAuthorizedEvent.class));
         verify(outboxEventRepository).save(outboxEvent);
     }
 
@@ -113,7 +113,7 @@ class OutboxServiceTest {
 
         when(outboxEventRepository.findPendingForUpdate(50)).thenReturn(List.of(outboxEvent));
         doThrow(new TimeoutException("Kafka broker unreachable"))
-                .when(paymentEventProducer).sendPaymentAuthorizedEventSync(any(OutboxEvent.class));
+                .when(paymentEventProducer).sendPaymentAuthorizedEventSync(any(PaymentAuthorizedEvent.class));
 
         int published = outboxService.publishPendingEvents();
 

@@ -52,6 +52,16 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-tracing-bridge-otel</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.loki4j</groupId>
+            <artifactId>loki-logback-appender</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>am.ik.spring.opentelemetry</groupId>
+            <artifactId>otel-logs-autoconfigure</artifactId>
+            <version>0.2.2</version>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>

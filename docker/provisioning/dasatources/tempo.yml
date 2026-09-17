@@ -8,3 +8,16 @@ datasources:
     isDefault: true
     jsonData:
       httpMethod: GET
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    deriveFieldsFromLogs: true
+    jsonData:
+      derivedFields:
+        - datasourceName: Tempo
+          datasourceUid: tempo
+          matcherType: label
+          matcherRegex: trace_id=(\w+)
+          name: traceID
+          url: '$${__value.raw}'

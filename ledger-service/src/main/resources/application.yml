@@ -61,6 +61,8 @@ management:
     sampling:
       probability: 1.0 # Rastreia 100% das requisições
   otlp:
+    logging:
+      endpoint: ${MANAGEMENT_OTLP_LOGGING_ENDPOINT:http://localhost:4318/v1/logs}
     tracing:
       # Endpoint HTTP OTLP do Grafana Tempo ou Jaeger
       endpoint: ${MANAGEMENT_OTLP_TRACING_ENDPOINT:http://localhost:4318/v1/traces}
