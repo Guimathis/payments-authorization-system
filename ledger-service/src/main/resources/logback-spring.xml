@@ -4,7 +4,6 @@
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
     <root level="INFO">
-        <appender-ref ref="LOKI"/>
         <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>
