@@ -67,6 +67,7 @@ app:
       enabled: true
     polling-interval-ms: 1000
     batch-size: 50
+    max-retries: 5
 
 antifraud:
   service:

@@ -7,12 +7,6 @@ import com.payments.authorization.entity.OutboxStatus;
 import com.payments.authorization.event.PaymentAuthorizedEvent;
 import com.payments.authorization.producer.PaymentEventProducer;
 import com.payments.authorization.repository.OutboxEventRepository;
-import io.opentelemetry.api.common.AttributeKey;
-import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.SpanKind;
-import io.opentelemetry.api.trace.StatusCode;
-import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +15,6 @@ import org.apache.kafka.common.errors.TimeoutException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.KafkaException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -33,15 +26,17 @@ import java.util.Map;
 public class OutboxService {
 
     private final OutboxEventRepository outboxEventRepository;
+    private final OutboxEventProcessor outboxEventProcessor;
     private final PaymentEventProducer paymentEventProducer;
     private final OpenTelemetryService openTelemetryService;
-    private final Tracer tracer;
     private final ObjectMapper objectMapper;
 
     @Value("${app.outbox.batch-size:50}")
     private int batchSize;
 
-    @Transactional
+    @Value("${app.outbox.max-retries:3}")
+    private int maxRetries;
+
     public int publishPendingEvents() {
         List<OutboxEvent> pendingEvents = outboxEventRepository.findPendingForUpdate(batchSize);
         if (pendingEvents.isEmpty()) {
@@ -55,29 +50,41 @@ public class OutboxService {
             try {
                 PaymentAuthorizedEvent payloadEvent = objectMapper.readValue(event.getPayload(), PaymentAuthorizedEvent.class);
 
-                //  Converte o trace_context salvo de volta para Map
-                Map<String, String> traceHeaders = objectMapper.readValue(
-                        event.getTraceContext(),
-                        new TypeReference<Map<String, String>>() {}
-                );
+                Context parentContext = Context.current();
+                if (event.getTraceContext() != null && !event.getTraceContext().isBlank()) {
+                    Map<String, String> traceHeaders = objectMapper.readValue(
+                            event.getTraceContext(),
+                            new TypeReference<Map<String, String>>() {}
+                    );
+                    if (openTelemetryService != null) {
+                        parentContext = openTelemetryService.extractTraceContext(traceHeaders);
+                    }
+                }
 
-                // Extrai o contexto original do OpenTelemetry
-                Context parentContext = openTelemetryService.extractTraceContext(traceHeaders);
-
-                // Ativa o contexto na thread atual temporariamente
+                // Publicação no broker Kafka executada fora da transação de banco de dados
                 try (Scope scope = parentContext.makeCurrent()) {
                     paymentEventProducer.sendPaymentAuthorizedEventSync(payloadEvent);
                 }
 
+                // Persistência pontual com commit imediato em transação isolada
+                outboxEventProcessor.markAsSent(event.getId());
+
                 event.setStatus(OutboxStatus.SENT);
                 event.setProcessedAt(Instant.now());
-                outboxEventRepository.save(event);
                 publishedCount++;
             } catch (Exception ex) {
                 log.error("Falha ao publicar evento outbox [id={}, aggregateId={}]: {}",
                         event.getId(), event.getAggregateId(), ex.getMessage());
-                event.setRetryCount(event.getRetryCount() + 1);
-                outboxEventRepository.save(event);
+
+                // Atualização pontual do erro em transação isolada
+                outboxEventProcessor.markAsFailedOrRetry(event.getId(), maxRetries);
+
+                int currentRetry = event.getRetryCount() != null ? event.getRetryCount() : 0;
+                int updatedRetry = currentRetry + 1;
+                event.setRetryCount(updatedRetry);
+                if (updatedRetry >= maxRetries) {
+                    event.setStatus(OutboxStatus.FAILED);
+                }
 
                 if (isBrokerCommunicationError(ex)) {
                     log.warn("Broker Kafka parece indisponível. Interrompendo lote atual para nova tentativa no próximo ciclo.");
