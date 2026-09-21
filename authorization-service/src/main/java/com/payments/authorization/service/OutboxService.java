@@ -1,5 +1,6 @@
 package com.payments.authorization.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payments.authorization.entity.OutboxEvent;
@@ -11,12 +12,12 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.errors.RetriableException;
 import org.apache.kafka.common.errors.TimeoutException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.KafkaException;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -48,31 +49,24 @@ public class OutboxService {
         int publishedCount = 0;
         for (OutboxEvent event : pendingEvents) {
             try {
+
                 PaymentAuthorizedEvent payloadEvent = objectMapper.readValue(event.getPayload(), PaymentAuthorizedEvent.class);
 
-                Context parentContext = Context.current();
-                if (event.getTraceContext() != null && !event.getTraceContext().isBlank()) {
-                    Map<String, String> traceHeaders = objectMapper.readValue(
-                            event.getTraceContext(),
-                            new TypeReference<Map<String, String>>() {}
-                    );
-                    if (openTelemetryService != null) {
-                        parentContext = openTelemetryService.extractTraceContext(traceHeaders);
-                    }
-                }
+                Context eventTraceContext = fetchEventTraceContext(event.getTraceContext());
 
-                // Publicação no broker Kafka executada fora da transação de banco de dados
-                try (Scope scope = parentContext.makeCurrent()) {
+                try (Scope scope = eventTraceContext.makeCurrent()) {
                     paymentEventProducer.sendPaymentAuthorizedEventSync(payloadEvent);
                 }
 
                 // Persistência pontual com commit imediato em transação isolada
                 outboxEventProcessor.markAsSent(event.getId());
 
-                event.setStatus(OutboxStatus.SENT);
-                event.setProcessedAt(Instant.now());
                 publishedCount++;
+            } catch (RetriableException ex) {
+                log.error("Falha ao processar evento outbox [id={}, aggregateId={}]: {}",
+                        event.getId(), event.getAggregateId(), ex.getMessage());
             } catch (Exception ex) {
+
                 log.error("Falha ao publicar evento outbox [id={}, aggregateId={}]: {}",
                         event.getId(), event.getAggregateId(), ex.getMessage());
 
@@ -93,6 +87,21 @@ public class OutboxService {
             }
         }
         return publishedCount;
+    }
+
+    private Context fetchEventTraceContext(String traceContext) throws JsonProcessingException {
+        Context parentContext = Context.current();
+        if (traceContext != null && !traceContext.isBlank()) {
+            Map<String, String> traceHeaders = objectMapper.readValue(
+                    traceContext,
+                    new TypeReference<Map<String, String>>() {
+                    }
+            );
+            if (openTelemetryService != null) {
+                parentContext = openTelemetryService.extractTraceContext(traceHeaders);
+            }
+        }
+        return parentContext;
     }
 
     private boolean isBrokerCommunicationError(Throwable ex) {

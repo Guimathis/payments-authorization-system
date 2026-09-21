@@ -11,7 +11,11 @@ import java.util.UUID;
 
 public interface OutboxEventRepository extends JpaRepository<OutboxEvent, UUID> {
 
-    @Query(value = "SELECT * FROM outbox_events WHERE status = 'PENDING' ORDER BY created_at ASC LIMIT :limit FOR UPDATE SKIP LOCKED", nativeQuery = true)
+    @Query(value = "SELECT * FROM outbox_events WHERE status = 'PENDING'                                                                                                                                                               \n" +
+            " AND (next_retry_at IS NULL OR next_retry_at <= NOW())                                                                                                                                \n" +
+            " ORDER BY created_at ASC                                                                                                                                                                \n" +
+            " LIMIT :limit                                                                                                                                                                           \n" +
+            " FOR UPDATE SKIP LOCKED;", nativeQuery = true)
     List<OutboxEvent> findPendingForUpdate(@Param("limit") int limit);
 
     List<OutboxEvent> findByStatusOrderByCreatedAtAsc(OutboxStatus status);

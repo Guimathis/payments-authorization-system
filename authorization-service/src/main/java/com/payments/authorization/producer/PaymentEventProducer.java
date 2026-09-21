@@ -3,6 +3,8 @@ package com.payments.authorization.producer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payments.authorization.event.PaymentAuthorizedEvent;
 import com.payments.authorization.service.OpenTelemetryService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.opentelemetry.api.trace.Tracer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ public class PaymentEventProducer {
     @Value("${app.kafka.producer.send-timeout-ms:3000}")
     private long sendTimeoutMs;
 
+    @CircuitBreaker(name = "payment-event-producer", fallbackMethod = "sendPaymentAuthorizedEventSyncFallback")
     public void  sendPaymentAuthorizedEventSync(PaymentAuthorizedEvent event) throws Exception {
 
         String partitionKey = event.getAccountId() != null ? event.getAccountId().toString() : event.getPaymentId().toString();
@@ -41,23 +44,9 @@ public class PaymentEventProducer {
                 event.getPaymentId(), result.getRecordMetadata().offset(), result.getRecordMetadata().partition());
     }
 
-    public void sendPaymentAuthorizedEvent(PaymentAuthorizedEvent event) {
-        String partitionKey = event.getAccountId() != null ? event.getAccountId().toString() : event.getPaymentId().toString();
+    public void sendPaymentAuthorizedEventSyncFallback(PaymentAuthorizedEvent event, Throwable ex){
+        log.warn("Caindo no fallback do PaymentEventProducer.");
 
-        log.info("Publicando evento PaymentAuthorizedEvent no tópico {}. Chave: {}, PaymentId: {}",
-                transacaoAutorizadaTopic, partitionKey, event.getPaymentId());
-
-        CompletableFuture<SendResult<String, PaymentAuthorizedEvent>> future =
-                kafkaTemplate.send(transacaoAutorizadaTopic, partitionKey, event);
-
-        future.whenComplete((result, ex) -> {
-            if (ex == null) {
-                log.info("Evento PaymentAuthorizedEvent publicado com sucesso. Offset: {}, Partição: {}",
-                        result.getRecordMetadata().offset(), result.getRecordMetadata().partition());
-            } else {
-                log.error("Erro ao publicar evento PaymentAuthorizedEvent para paymentId {}: {}",
-                        event.getPaymentId(), ex.getMessage(), ex);
-            }
-        });
     }
+
 }
