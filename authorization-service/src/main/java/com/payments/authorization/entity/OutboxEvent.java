@@ -63,4 +63,10 @@ public class OutboxEvent implements Serializable {
 
     @Column(name = "processed_at")
     private Instant processedAt;
+
+    @Column(name = "next_retry_at")
+    private Instant nextRetryAt;
+
+    @Column(name = "last_error_message", columnDefinition = "TEXT")
+    private String lastErrorMessage;
 }

@@ -1,13 +1,12 @@
 package com.payments.authorization.config;
 
-import com.payments.authorization.event.PaymentAuthorizedEvent;
-import io.micrometer.observation.ObservationRegistry;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -18,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@EnableKafka
 public class KafkaProducerConfig {
 
     @Value("${spring.kafka.bootstrap-servers:localhost:9092}")
@@ -45,7 +45,12 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public ProducerFactory<String, PaymentAuthorizedEvent> producerFactory() {
+    public ProducerFactory<String, Object> producerFactory() {
+        return new DefaultKafkaProducerFactory<>(producerConfigs());
+    }
+
+    @Bean
+    public Map<String, Object> producerConfigs() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -53,13 +58,12 @@ public class KafkaProducerConfig {
         configProps.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 5000);
         configProps.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 5000);
         configProps.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 30000);
-        configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
-        return new DefaultKafkaProducerFactory<>(configProps);
+        return configProps;
     }
 
     @Bean
-    public KafkaTemplate<String, PaymentAuthorizedEvent> kafkaTemplate() {
-        KafkaTemplate<String, PaymentAuthorizedEvent> template = new KafkaTemplate<>(producerFactory());
+    public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> producerFactory) {
+        KafkaTemplate<String, Object> template = new KafkaTemplate<>(producerFactory);
         template.setObservationEnabled(true);
         return template;
     }

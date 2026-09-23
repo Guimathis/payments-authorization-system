@@ -2,6 +2,7 @@ package com.payments.authorization.service;
 
 import com.payments.authorization.entity.OutboxEvent;
 import com.payments.authorization.entity.OutboxStatus;
+import com.payments.authorization.outbox.OutboxEventProcessor;
 import com.payments.authorization.repository.OutboxEventRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,8 +31,31 @@ class OutboxEventProcessorTest {
     private OutboxEventProcessor outboxEventProcessor;
 
     @Test
-    @DisplayName("Deve marcar evento como SENT e preencher data de processamento")
+    @DisplayName("Deve marcar evento como SENT e preencher data de processamento limpando erros e retry")
     void shouldMarkEventAsSentSuccessfully() {
+        UUID eventId = UUID.randomUUID();
+        OutboxEvent event = OutboxEvent.builder()
+                .id(eventId)
+                .status(OutboxStatus.PENDING)
+                .retryCount(0)
+                .lastErrorMessage("Erro antigo")
+                .nextRetryAt(Instant.now().plusSeconds(60))
+                .build();
+
+        when(outboxEventRepository.findById(eventId)).thenReturn(Optional.of(event));
+
+        outboxEventProcessor.markAsSent(eventId);
+
+        assertThat(event.getStatus()).isEqualTo(OutboxStatus.SENT);
+        assertThat(event.getProcessedAt()).isNotNull();
+        assertThat(event.getLastErrorMessage()).isNull();
+        assertThat(event.getNextRetryAt()).isNull();
+        verify(outboxEventRepository).save(event);
+    }
+
+    @Test
+    @DisplayName("Deve marcar evento como POISON_PILL: status FAILED imediato, data de processamento e mensagem de erro")
+    void shouldMarkAsPoisonPillSuccessfully() {
         UUID eventId = UUID.randomUUID();
         OutboxEvent event = OutboxEvent.builder()
                 .id(eventId)
@@ -41,16 +65,18 @@ class OutboxEventProcessorTest {
 
         when(outboxEventRepository.findById(eventId)).thenReturn(Optional.of(event));
 
-        outboxEventProcessor.markAsSent(eventId);
+        outboxEventProcessor.markAsPoisonPill(eventId, "Malformed JSON syntax");
 
-        assertThat(event.getStatus()).isEqualTo(OutboxStatus.SENT);
+        assertThat(event.getStatus()).isEqualTo(OutboxStatus.FAILED);
         assertThat(event.getProcessedAt()).isNotNull();
+        assertThat(event.getLastErrorMessage()).startsWith("POISON_PILL: Malformed JSON syntax");
+        assertThat(event.getNextRetryAt()).isNull();
         verify(outboxEventRepository).save(event);
     }
 
     @Test
-    @DisplayName("Deve incrementar retry_count e manter PENDING quando abaixo do limite máximo")
-    void shouldIncrementRetryCountAndRemainPendingWhenBelowMaxRetries() {
+    @DisplayName("Deve incrementar retry_count, calcular backoff em next_retry_at e manter PENDING quando abaixo do limite")
+    void shouldIncrementRetryCountAndRemainPendingWithBackoff() {
         UUID eventId = UUID.randomUUID();
         OutboxEvent event = OutboxEvent.builder()
                 .id(eventId)
@@ -60,10 +86,12 @@ class OutboxEventProcessorTest {
 
         when(outboxEventRepository.findById(eventId)).thenReturn(Optional.of(event));
 
-        outboxEventProcessor.markAsFailedOrRetry(eventId, 5);
+        outboxEventProcessor.markForRetry(eventId, 5, "Connection refused");
 
         assertThat(event.getRetryCount()).isEqualTo(2);
         assertThat(event.getStatus()).isEqualTo(OutboxStatus.PENDING);
+        assertThat(event.getLastErrorMessage()).isEqualTo("Connection refused");
+        assertThat(event.getNextRetryAt()).isAfter(Instant.now());
         verify(outboxEventRepository).save(event);
     }
 
@@ -79,29 +107,34 @@ class OutboxEventProcessorTest {
 
         when(outboxEventRepository.findById(eventId)).thenReturn(Optional.of(event));
 
-        outboxEventProcessor.markAsFailedOrRetry(eventId, 5);
+        outboxEventProcessor.markForRetry(eventId, 5, "Timeout persistent");
 
         assertThat(event.getRetryCount()).isEqualTo(5);
         assertThat(event.getStatus()).isEqualTo(OutboxStatus.FAILED);
+        assertThat(event.getProcessedAt()).isNotNull();
+        assertThat(event.getNextRetryAt()).isNull();
+        assertThat(event.getLastErrorMessage()).isEqualTo("Timeout persistent");
         verify(outboxEventRepository).save(event);
     }
 
     @Test
-    @DisplayName("Deve tratar retry_count nulo iniciando a contagem em 1")
-    void shouldHandleNullRetryCountGracefully() {
+    @DisplayName("Deve registrar falha transitória de infraestrutura sem incrementar retry_count e adiando next_retry_at")
+    void shouldRecordTransientFailureWithoutIncrementingRetries() {
         UUID eventId = UUID.randomUUID();
         OutboxEvent event = OutboxEvent.builder()
                 .id(eventId)
                 .status(OutboxStatus.PENDING)
-                .retryCount(null)
+                .retryCount(1)
                 .build();
 
         when(outboxEventRepository.findById(eventId)).thenReturn(Optional.of(event));
 
-        outboxEventProcessor.markAsFailedOrRetry(eventId, 3);
+        outboxEventProcessor.recordTransientFailure(eventId, "Kafka broker timeout");
 
-        assertThat(event.getRetryCount()).isEqualTo(1);
+        assertThat(event.getRetryCount()).isEqualTo(1); // Não incrementou!
         assertThat(event.getStatus()).isEqualTo(OutboxStatus.PENDING);
+        assertThat(event.getLastErrorMessage()).isEqualTo("Kafka broker timeout");
+        assertThat(event.getNextRetryAt()).isAfter(Instant.now());
         verify(outboxEventRepository).save(event);
     }
 
@@ -112,7 +145,9 @@ class OutboxEventProcessorTest {
         when(outboxEventRepository.findById(eventId)).thenReturn(Optional.empty());
 
         outboxEventProcessor.markAsSent(eventId);
-        outboxEventProcessor.markAsFailedOrRetry(eventId, 5);
+        outboxEventProcessor.markAsPoisonPill(eventId, "Error");
+        outboxEventProcessor.markForRetry(eventId, 5, "Error");
+        outboxEventProcessor.recordTransientFailure(eventId, "Error");
 
         verify(outboxEventRepository, never()).save(any(OutboxEvent.class));
     }

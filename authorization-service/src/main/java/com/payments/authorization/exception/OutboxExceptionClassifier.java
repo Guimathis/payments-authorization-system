@@ -1,6 +1,8 @@
 package com.payments.authorization.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.errors.*;
 import org.springframework.stereotype.Component;
 
@@ -51,6 +53,7 @@ public class OutboxExceptionClassifier {
     private boolean isTransient(Throwable t) {
         return t instanceof RetriableException // inclui o TimeoutException do Kafka
                 || t instanceof java.util.concurrent.TimeoutException
+                || t instanceof java.util.concurrent.CompletionException
                 || t instanceof SocketTimeoutException
                 || t instanceof ConnectException;
     }
