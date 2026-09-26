@@ -77,6 +77,7 @@ services:
     environment:
       <<: *obs-env
       SERVER_PORT: 8082
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://otel-collector:4318/v1/traces
     networks:
       - payments-net
 
@@ -93,6 +94,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       ANTIFRAUD_SERVICE_URL: http://antifraud-service:8082
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://otel-collector:4318/v1/traces
     depends_on:
       postgres-auth:
         condition: service_healthy
@@ -133,6 +135,7 @@ services:
       <<: *obs-env
       SERVER_PORT: 8084
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://otel-collector:4318/v1/traces
     depends_on:
       kafka:
         condition: service_healthy
@@ -150,6 +153,7 @@ services:
       AUTHORIZATION_SERVICE_URL: http://authorization-service:8081
       ANTIFRAUD_SERVICE_URL: http://antifraud-service:8082
       LEDGER_SERVICE_URL: http://ledger-service:8083
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://otel-collector:4318/v1/traces
     depends_on:
       - authorization-service
       - ledger-service

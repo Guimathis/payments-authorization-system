@@ -31,9 +31,8 @@ public class AntifraudIntegrationService {
     public AntifraudEvaluationResponseDto evaluate(AntifraudEvaluationRequestDto request) {
         log.info("Enviando requisição de avaliação para o antifraud-service. Conta: {}, Valor: {}", 
                 request.getAccountId(), request.getAmount());
-
+      
         return paymentMetrics.recordAntifraudEvaluation(() -> antifraudClient.evaluate(null, request));
-
     }
 
     public AntifraudEvaluationResponseDto evaluateFallback(AntifraudEvaluationRequestDto request, Throwable ex) {
