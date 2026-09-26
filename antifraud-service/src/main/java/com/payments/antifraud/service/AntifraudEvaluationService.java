@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.UUID;
 
 @Slf4j
@@ -29,7 +31,7 @@ public class AntifraudEvaluationService {
             }
         }
 
-        boolean isHighRisk = request.getAmount().compareTo(MAX_SAFE_AMOUNT) > 0 
+        boolean isHighRisk = request.getAmount().compareTo(MAX_SAFE_AMOUNT) > 0
                 || Boolean.TRUE.equals(request.getSuspicious());
 
         String recommendation;

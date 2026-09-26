@@ -2,8 +2,11 @@ package com.payments.authorization.client;
 
 import com.payments.authorization.client.dto.AntifraudEvaluationRequestDto;
 import com.payments.authorization.client.dto.AntifraudEvaluationResponseDto;
+import com.payments.authorization.metrics.PaymentMetrics;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +23,7 @@ public class AntifraudIntegrationService {
 
     private static final BigDecimal CONTINGENCY_MAX_AMOUNT = new BigDecimal("500.00");
     private final AntifraudClient antifraudClient;
+    private final PaymentMetrics paymentMetrics;
 
     @CircuitBreaker(name = "antifraud", fallbackMethod = "evaluateFallback")
     @Retry(name = "antifraud")
@@ -27,7 +31,9 @@ public class AntifraudIntegrationService {
     public AntifraudEvaluationResponseDto evaluate(AntifraudEvaluationRequestDto request) {
         log.info("Enviando requisição de avaliação para o antifraud-service. Conta: {}, Valor: {}", 
                 request.getAccountId(), request.getAmount());
-        return antifraudClient.evaluate(null, request);
+
+        return paymentMetrics.recordAntifraudEvaluation(() -> antifraudClient.evaluate(null, request));
+
     }
 
     public AntifraudEvaluationResponseDto evaluateFallback(AntifraudEvaluationRequestDto request, Throwable ex) {

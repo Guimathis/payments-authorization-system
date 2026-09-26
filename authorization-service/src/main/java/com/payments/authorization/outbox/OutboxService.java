@@ -27,8 +27,8 @@ public class OutboxService {
     @Value("${app.outbox.max-retries:5}")
     private int maxRetries;
 
-    public int publishPendingEvents() {
-        return publishPendingEvents(defaultBatchSize);
+    public void publishPendingEvents() {
+        publishPendingEvents(defaultBatchSize);
     }
 
     public int publishPendingEvents(int batchSize) {

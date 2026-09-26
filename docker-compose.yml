@@ -213,13 +213,37 @@ services:
     ports:
       - "3000:3000"
     volumes:
+      - ./docker/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./docker/grafana/dashboards:/etc/grafana/provisioning/dashboards
       - grafana_data:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
+      - prometheus
       - tempo
+    networks:
+      - payments-net
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    extra_hosts:
+      - "authorization-service:host-gateway"
+      - "gateway-service:host-gateway"
+      - "antifraud-service:host-gateway"
+      - "ledger-service:host-gateway"
+      - "notification-service:host-gateway"
     networks:
       - payments-net
 
@@ -233,3 +257,4 @@ volumes:
   tempo_data:
   grafana_data:
   loki_data:
+  prometheus_data:

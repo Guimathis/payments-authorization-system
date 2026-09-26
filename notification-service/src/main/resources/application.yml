@@ -28,7 +28,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
   tracing:
     sampling:
       probability: 1.0 # Rastreia 100% das requisições

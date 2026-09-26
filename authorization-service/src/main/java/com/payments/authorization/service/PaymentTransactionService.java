@@ -10,6 +10,7 @@ import com.payments.authorization.entity.OutboxStatus;
 import com.payments.authorization.entity.Transaction;
 import com.payments.authorization.entity.TransactionStatus;
 import com.payments.authorization.event.PaymentAuthorizedEvent;
+import com.payments.authorization.metrics.PaymentMetrics;
 import com.payments.authorization.repository.OutboxEventRepository;
 import com.payments.authorization.repository.TransactionRepository;
 import io.micrometer.observation.annotation.Observed;
@@ -31,6 +32,7 @@ public class PaymentTransactionService {
     private final OutboxEventRepository outboxEventRepository;
     private final OpenTelemetryService openTelemetryService;
     private final ObjectMapper objectMapper;
+    private final PaymentMetrics paymentMetrics;
 
     @Transactional
     @Observed(name = "transaction.persist", contextualName = "salvar-transacao-e-outbox")
@@ -94,6 +96,8 @@ public class PaymentTransactionService {
                         .retryCount(0)
                         .createdAt(savedTx.getCreatedAt())
                         .build();
+
+                paymentMetrics.incrementAuthorizationCount(savedTx.getStatus().name(), savedTx.getPaymentMethod());
 
                 outboxEventRepository.save(outboxEvent);
                 log.info("Evento salvo na outbox com status PENDING para paymentId {}", savedTx.getId());

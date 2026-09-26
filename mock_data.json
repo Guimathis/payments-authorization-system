@@ -1,0 +1,802 @@
+[
+  {
+    "accountId": "78455290-d67d-4ae8-8d64-8aec48cf646f",
+    "amount": 9.03,
+    "cardToken": "tok_visa_c5f434c3",
+    "currency": "BRL",
+    "merchantId": "07b89fb1-5d05-462a-80bc-0af35adfb432",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "1425cfda-2fbf-4bb9-8356-9c19d4275682",
+    "amount": 208.32,
+    "cardToken": "tok_mastercard_0f2d5f14",
+    "currency": "BRL",
+    "merchantId": "cde8d13d-da5b-4719-80ae-7dc3e4c8e166",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "b58a85c3-ad51-4fc5-aba6-7ecd88085595",
+    "amount": 201.24,
+    "cardToken": "tok_elo_6998c7fc",
+    "currency": "BRL",
+    "merchantId": "eaf1f3fa-69bf-4475-9c43-e08a166e5837",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "1fa5ccea-7a9a-4363-844c-ffae98cac0a2",
+    "amount": 272.4,
+    "cardToken": "tok_visa_9093149d",
+    "currency": "BRL",
+    "merchantId": "95f3c47b-3ddd-43fb-9fb6-e712b771ddc0",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "40f819ed-2e5a-4ab4-bc4b-72ff07aaa23e",
+    "amount": 353.44,
+    "cardToken": "tok_mastercard_1efff2fc",
+    "currency": "BRL",
+    "merchantId": "ceebf6a0-2ce6-4d57-bba6-abd7e1a06e62",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "6f61724a-1a7c-400f-93e6-fba0f117a856",
+    "amount": 865.06,
+    "cardToken": "tok_elo_ec314219",
+    "currency": "BRL",
+    "merchantId": "dae44415-2a04-4e50-868d-011bff4e9e17",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "6d6a95d9-5f5e-420b-b9a6-56290d5e8dc3",
+    "amount": 233.46,
+    "cardToken": "tok_visa_90accb4e",
+    "currency": "BRL",
+    "merchantId": "ca7ff823-4a31-4f64-8098-4dcf4252af05",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "396eaae4-b34f-473a-af56-0a1d7ce9f823",
+    "amount": 283.54,
+    "cardToken": "tok_mastercard_9008305e",
+    "currency": "BRL",
+    "merchantId": "edc28ab9-14e2-494b-bab3-a0b670bc1eef",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "3b5ad3dc-92f6-4c05-af72-8c5e3e1ddf47",
+    "amount": 109.33,
+    "cardToken": "tok_elo_ea307535",
+    "currency": "BRL",
+    "merchantId": "54875c9a-b412-4945-a2d8-c4aedb288cce",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "ac1c795b-92c7-4ec8-8b1d-1296a105d946",
+    "amount": 26.54,
+    "cardToken": "tok_visa_ebc7d006",
+    "currency": "BRL",
+    "merchantId": "9c33c466-d1ae-4c63-a66e-b28c72acc5aa",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "861f1f0f-c9f8-4a12-a27c-2561c3a8ff91",
+    "amount": 8.75,
+    "cardToken": "tok_mastercard_f1ac1f60",
+    "currency": "BRL",
+    "merchantId": "07b89fb1-5d05-462a-80bc-0af35adfb432",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "79787b90-b609-4a26-ba84-f825dea60cdc",
+    "amount": 228.23,
+    "cardToken": "tok_elo_94b7821b",
+    "currency": "BRL",
+    "merchantId": "cde8d13d-da5b-4719-80ae-7dc3e4c8e166",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "7e5f977f-631c-4f72-83c4-298c8f75adc3",
+    "amount": 149.37,
+    "cardToken": "tok_visa_05872e7f",
+    "currency": "BRL",
+    "merchantId": "eaf1f3fa-69bf-4475-9c43-e08a166e5837",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "9282aa0c-f000-4bf5-bbe4-6c32fb1e6448",
+    "amount": 39.84,
+    "cardToken": "tok_mastercard_2a845708",
+    "currency": "BRL",
+    "merchantId": "95f3c47b-3ddd-43fb-9fb6-e712b771ddc0",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "6a5819af-cdb1-4d8b-939e-16ff716d33d0",
+    "amount": 317.09,
+    "cardToken": "tok_elo_8fce293d",
+    "currency": "BRL",
+    "merchantId": "ceebf6a0-2ce6-4d57-bba6-abd7e1a06e62",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "1a28f124-8d08-497c-8973-28993b98819a",
+    "amount": 1347.03,
+    "cardToken": "tok_visa_161a4df4",
+    "currency": "BRL",
+    "merchantId": "dae44415-2a04-4e50-868d-011bff4e9e17",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "d56fc9e4-2edc-4fed-ab3c-80318d89deff",
+    "amount": 122.99,
+    "cardToken": "tok_mastercard_08124137",
+    "currency": "BRL",
+    "merchantId": "ca7ff823-4a31-4f64-8098-4dcf4252af05",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "d8418974-06bd-4151-91f6-08417b91d2c3",
+    "amount": 266.62,
+    "cardToken": "tok_elo_db524c0d",
+    "currency": "BRL",
+    "merchantId": "edc28ab9-14e2-494b-bab3-a0b670bc1eef",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "96777d5a-ef15-486e-99c3-376df0772cd4",
+    "amount": 248.61,
+    "cardToken": "tok_visa_16902514",
+    "currency": "BRL",
+    "merchantId": "54875c9a-b412-4945-a2d8-c4aedb288cce",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "6ccab494-e3fa-48a9-896b-2be917e13132",
+    "amount": 338.77,
+    "cardToken": "tok_mastercard_f7ef7687",
+    "currency": "BRL",
+    "merchantId": "9c33c466-d1ae-4c63-a66e-b28c72acc5aa",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "78455290-d67d-4ae8-8d64-8aec48cf646f",
+    "amount": 12.96,
+    "cardToken": "tok_elo_2cfa5e26",
+    "currency": "BRL",
+    "merchantId": "07b89fb1-5d05-462a-80bc-0af35adfb432",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "1425cfda-2fbf-4bb9-8356-9c19d4275682",
+    "amount": 228.5,
+    "cardToken": "tok_visa_d0b23f11",
+    "currency": "BRL",
+    "merchantId": "cde8d13d-da5b-4719-80ae-7dc3e4c8e166",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "b58a85c3-ad51-4fc5-aba6-7ecd88085595",
+    "amount": 168.24,
+    "cardToken": "tok_mastercard_1cf3e9b0",
+    "currency": "BRL",
+    "merchantId": "eaf1f3fa-69bf-4475-9c43-e08a166e5837",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "1fa5ccea-7a9a-4363-844c-ffae98cac0a2",
+    "amount": 130.52,
+    "cardToken": "tok_elo_aecdacf0",
+    "currency": "BRL",
+    "merchantId": "95f3c47b-3ddd-43fb-9fb6-e712b771ddc0",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "40f819ed-2e5a-4ab4-bc4b-72ff07aaa23e",
+    "amount": 42.39,
+    "cardToken": "tok_visa_be4afe09",
+    "currency": "BRL",
+    "merchantId": "ceebf6a0-2ce6-4d57-bba6-abd7e1a06e62",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "6f61724a-1a7c-400f-93e6-fba0f117a856",
+    "amount": 754.02,
+    "cardToken": "tok_mastercard_661eef94",
+    "currency": "BRL",
+    "merchantId": "dae44415-2a04-4e50-868d-011bff4e9e17",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "6d6a95d9-5f5e-420b-b9a6-56290d5e8dc3",
+    "amount": 61.75,
+    "cardToken": "tok_elo_01be9239",
+    "currency": "BRL",
+    "merchantId": "ca7ff823-4a31-4f64-8098-4dcf4252af05",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "396eaae4-b34f-473a-af56-0a1d7ce9f823",
+    "amount": 163.51,
+    "cardToken": "tok_visa_9006179c",
+    "currency": "BRL",
+    "merchantId": "edc28ab9-14e2-494b-bab3-a0b670bc1eef",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "3b5ad3dc-92f6-4c05-af72-8c5e3e1ddf47",
+    "amount": 200.6,
+    "cardToken": "tok_mastercard_928c594a",
+    "currency": "BRL",
+    "merchantId": "54875c9a-b412-4945-a2d8-c4aedb288cce",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "ac1c795b-92c7-4ec8-8b1d-1296a105d946",
+    "amount": 64.84,
+    "cardToken": "tok_elo_839441f7",
+    "currency": "BRL",
+    "merchantId": "9c33c466-d1ae-4c63-a66e-b28c72acc5aa",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "861f1f0f-c9f8-4a12-a27c-2561c3a8ff91",
+    "amount": 13,
+    "cardToken": "tok_visa_ca58be88",
+    "currency": "BRL",
+    "merchantId": "07b89fb1-5d05-462a-80bc-0af35adfb432",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "79787b90-b609-4a26-ba84-f825dea60cdc",
+    "amount": 242.27,
+    "cardToken": "tok_mastercard_75d08ea5",
+    "currency": "BRL",
+    "merchantId": "cde8d13d-da5b-4719-80ae-7dc3e4c8e166",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "7e5f977f-631c-4f72-83c4-298c8f75adc3",
+    "amount": 183.53,
+    "cardToken": "tok_elo_582758cc",
+    "currency": "BRL",
+    "merchantId": "eaf1f3fa-69bf-4475-9c43-e08a166e5837",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "9282aa0c-f000-4bf5-bbe4-6c32fb1e6448",
+    "amount": 277.34,
+    "cardToken": "tok_visa_51a6e8d5",
+    "currency": "BRL",
+    "merchantId": "95f3c47b-3ddd-43fb-9fb6-e712b771ddc0",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "6a5819af-cdb1-4d8b-939e-16ff716d33d0",
+    "amount": 50.83,
+    "cardToken": "tok_mastercard_704c8655",
+    "currency": "BRL",
+    "merchantId": "ceebf6a0-2ce6-4d57-bba6-abd7e1a06e62",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "1a28f124-8d08-497c-8973-28993b98819a",
+    "amount": 836.09,
+    "cardToken": "tok_elo_fe990049",
+    "currency": "BRL",
+    "merchantId": "dae44415-2a04-4e50-868d-011bff4e9e17",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "d56fc9e4-2edc-4fed-ab3c-80318d89deff",
+    "amount": 78.89,
+    "cardToken": "tok_visa_f0b6f227",
+    "currency": "BRL",
+    "merchantId": "ca7ff823-4a31-4f64-8098-4dcf4252af05",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "d8418974-06bd-4151-91f6-08417b91d2c3",
+    "amount": 330.2,
+    "cardToken": "tok_mastercard_b1d3d4cd",
+    "currency": "BRL",
+    "merchantId": "edc28ab9-14e2-494b-bab3-a0b670bc1eef",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "96777d5a-ef15-486e-99c3-376df0772cd4",
+    "amount": 335,
+    "cardToken": "tok_elo_6518481b",
+    "currency": "BRL",
+    "merchantId": "54875c9a-b412-4945-a2d8-c4aedb288cce",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "6ccab494-e3fa-48a9-896b-2be917e13132",
+    "amount": 28.32,
+    "cardToken": "tok_visa_2e54a2ca",
+    "currency": "BRL",
+    "merchantId": "9c33c466-d1ae-4c63-a66e-b28c72acc5aa",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "78455290-d67d-4ae8-8d64-8aec48cf646f",
+    "amount": 14.86,
+    "cardToken": "tok_mastercard_84d9b323",
+    "currency": "BRL",
+    "merchantId": "07b89fb1-5d05-462a-80bc-0af35adfb432",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "1425cfda-2fbf-4bb9-8356-9c19d4275682",
+    "amount": 126.17,
+    "cardToken": "tok_elo_1f3392a2",
+    "currency": "BRL",
+    "merchantId": "cde8d13d-da5b-4719-80ae-7dc3e4c8e166",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "b58a85c3-ad51-4fc5-aba6-7ecd88085595",
+    "amount": 43.35,
+    "cardToken": "tok_visa_333e5ada",
+    "currency": "BRL",
+    "merchantId": "eaf1f3fa-69bf-4475-9c43-e08a166e5837",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "1fa5ccea-7a9a-4363-844c-ffae98cac0a2",
+    "amount": 318.62,
+    "cardToken": "tok_mastercard_68953c23",
+    "currency": "BRL",
+    "merchantId": "95f3c47b-3ddd-43fb-9fb6-e712b771ddc0",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "40f819ed-2e5a-4ab4-bc4b-72ff07aaa23e",
+    "amount": 160.31,
+    "cardToken": "tok_elo_05e75144",
+    "currency": "BRL",
+    "merchantId": "ceebf6a0-2ce6-4d57-bba6-abd7e1a06e62",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "6f61724a-1a7c-400f-93e6-fba0f117a856",
+    "amount": 1877.12,
+    "cardToken": "tok_visa_2b55390a",
+    "currency": "BRL",
+    "merchantId": "dae44415-2a04-4e50-868d-011bff4e9e17",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "6d6a95d9-5f5e-420b-b9a6-56290d5e8dc3",
+    "amount": 222.87,
+    "cardToken": "tok_mastercard_5dc68c73",
+    "currency": "BRL",
+    "merchantId": "ca7ff823-4a31-4f64-8098-4dcf4252af05",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "396eaae4-b34f-473a-af56-0a1d7ce9f823",
+    "amount": 84.99,
+    "cardToken": "tok_elo_bc77e3be",
+    "currency": "BRL",
+    "merchantId": "edc28ab9-14e2-494b-bab3-a0b670bc1eef",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "3b5ad3dc-92f6-4c05-af72-8c5e3e1ddf47",
+    "amount": 333.35,
+    "cardToken": "tok_visa_2f49f998",
+    "currency": "BRL",
+    "merchantId": "54875c9a-b412-4945-a2d8-c4aedb288cce",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "ac1c795b-92c7-4ec8-8b1d-1296a105d946",
+    "amount": 43.42,
+    "cardToken": "tok_mastercard_0ab1b6c4",
+    "currency": "BRL",
+    "merchantId": "9c33c466-d1ae-4c63-a66e-b28c72acc5aa",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "861f1f0f-c9f8-4a12-a27c-2561c3a8ff91",
+    "amount": 21.57,
+    "cardToken": "tok_elo_00e56a36",
+    "currency": "BRL",
+    "merchantId": "07b89fb1-5d05-462a-80bc-0af35adfb432",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "79787b90-b609-4a26-ba84-f825dea60cdc",
+    "amount": 290.79,
+    "cardToken": "tok_visa_e902c296",
+    "currency": "BRL",
+    "merchantId": "cde8d13d-da5b-4719-80ae-7dc3e4c8e166",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "7e5f977f-631c-4f72-83c4-298c8f75adc3",
+    "amount": 333.47,
+    "cardToken": "tok_mastercard_1074a27b",
+    "currency": "BRL",
+    "merchantId": "eaf1f3fa-69bf-4475-9c43-e08a166e5837",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "9282aa0c-f000-4bf5-bbe4-6c32fb1e6448",
+    "amount": 102.38,
+    "cardToken": "tok_elo_96172507",
+    "currency": "BRL",
+    "merchantId": "95f3c47b-3ddd-43fb-9fb6-e712b771ddc0",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "6a5819af-cdb1-4d8b-939e-16ff716d33d0",
+    "amount": 27.57,
+    "cardToken": "tok_visa_e91672a9",
+    "currency": "BRL",
+    "merchantId": "ceebf6a0-2ce6-4d57-bba6-abd7e1a06e62",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "1a28f124-8d08-497c-8973-28993b98819a",
+    "amount": 1155.66,
+    "cardToken": "tok_mastercard_cb5788a7",
+    "currency": "BRL",
+    "merchantId": "dae44415-2a04-4e50-868d-011bff4e9e17",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "d56fc9e4-2edc-4fed-ab3c-80318d89deff",
+    "amount": 350.99,
+    "cardToken": "tok_elo_4d912eec",
+    "currency": "BRL",
+    "merchantId": "ca7ff823-4a31-4f64-8098-4dcf4252af05",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "d8418974-06bd-4151-91f6-08417b91d2c3",
+    "amount": 92.84,
+    "cardToken": "tok_visa_c4f92d85",
+    "currency": "BRL",
+    "merchantId": "edc28ab9-14e2-494b-bab3-a0b670bc1eef",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "96777d5a-ef15-486e-99c3-376df0772cd4",
+    "amount": 214.77,
+    "cardToken": "tok_mastercard_20ea3182",
+    "currency": "BRL",
+    "merchantId": "54875c9a-b412-4945-a2d8-c4aedb288cce",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "6ccab494-e3fa-48a9-896b-2be917e13132",
+    "amount": 321.27,
+    "cardToken": "tok_elo_8cfe65e5",
+    "currency": "BRL",
+    "merchantId": "9c33c466-d1ae-4c63-a66e-b28c72acc5aa",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "78455290-d67d-4ae8-8d64-8aec48cf646f",
+    "amount": 20.99,
+    "cardToken": "tok_visa_e4f0be8e",
+    "currency": "BRL",
+    "merchantId": "07b89fb1-5d05-462a-80bc-0af35adfb432",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "1425cfda-2fbf-4bb9-8356-9c19d4275682",
+    "amount": 221.96,
+    "cardToken": "tok_mastercard_33934af9",
+    "currency": "BRL",
+    "merchantId": "cde8d13d-da5b-4719-80ae-7dc3e4c8e166",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "b58a85c3-ad51-4fc5-aba6-7ecd88085595",
+    "amount": 344.61,
+    "cardToken": "tok_elo_b03c08c9",
+    "currency": "BRL",
+    "merchantId": "eaf1f3fa-69bf-4475-9c43-e08a166e5837",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "1fa5ccea-7a9a-4363-844c-ffae98cac0a2",
+    "amount": 173.85,
+    "cardToken": "tok_visa_4c1a34b4",
+    "currency": "BRL",
+    "merchantId": "95f3c47b-3ddd-43fb-9fb6-e712b771ddc0",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "40f819ed-2e5a-4ab4-bc4b-72ff07aaa23e",
+    "amount": 209.89,
+    "cardToken": "tok_mastercard_d5a5a007",
+    "currency": "BRL",
+    "merchantId": "ceebf6a0-2ce6-4d57-bba6-abd7e1a06e62",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "6f61724a-1a7c-400f-93e6-fba0f117a856",
+    "amount": 1623.02,
+    "cardToken": "tok_elo_e98d1839",
+    "currency": "BRL",
+    "merchantId": "dae44415-2a04-4e50-868d-011bff4e9e17",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "6d6a95d9-5f5e-420b-b9a6-56290d5e8dc3",
+    "amount": 332.45,
+    "cardToken": "tok_visa_93c2532c",
+    "currency": "BRL",
+    "merchantId": "ca7ff823-4a31-4f64-8098-4dcf4252af05",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "396eaae4-b34f-473a-af56-0a1d7ce9f823",
+    "amount": 356.07,
+    "cardToken": "tok_mastercard_9e08fac1",
+    "currency": "BRL",
+    "merchantId": "edc28ab9-14e2-494b-bab3-a0b670bc1eef",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "3b5ad3dc-92f6-4c05-af72-8c5e3e1ddf47",
+    "amount": 302.7,
+    "cardToken": "tok_elo_7703ed42",
+    "currency": "BRL",
+    "merchantId": "54875c9a-b412-4945-a2d8-c4aedb288cce",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "ac1c795b-92c7-4ec8-8b1d-1296a105d946",
+    "amount": 177.25,
+    "cardToken": "tok_visa_2662c8e3",
+    "currency": "BRL",
+    "merchantId": "9c33c466-d1ae-4c63-a66e-b28c72acc5aa",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "861f1f0f-c9f8-4a12-a27c-2561c3a8ff91",
+    "amount": 24.26,
+    "cardToken": "tok_mastercard_3ca9e888",
+    "currency": "BRL",
+    "merchantId": "07b89fb1-5d05-462a-80bc-0af35adfb432",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "79787b90-b609-4a26-ba84-f825dea60cdc",
+    "amount": 72.63,
+    "cardToken": "tok_elo_6722db5b",
+    "currency": "BRL",
+    "merchantId": "cde8d13d-da5b-4719-80ae-7dc3e4c8e166",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "7e5f977f-631c-4f72-83c4-298c8f75adc3",
+    "amount": 65.5,
+    "cardToken": "tok_visa_03811e9d",
+    "currency": "BRL",
+    "merchantId": "eaf1f3fa-69bf-4475-9c43-e08a166e5837",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "9282aa0c-f000-4bf5-bbe4-6c32fb1e6448",
+    "amount": 332.59,
+    "cardToken": "tok_mastercard_8562362d",
+    "currency": "BRL",
+    "merchantId": "95f3c47b-3ddd-43fb-9fb6-e712b771ddc0",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "6a5819af-cdb1-4d8b-939e-16ff716d33d0",
+    "amount": 221.26,
+    "cardToken": "tok_elo_d9eeca1e",
+    "currency": "BRL",
+    "merchantId": "ceebf6a0-2ce6-4d57-bba6-abd7e1a06e62",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "1a28f124-8d08-497c-8973-28993b98819a",
+    "amount": 1520.09,
+    "cardToken": "tok_visa_e68aac75",
+    "currency": "BRL",
+    "merchantId": "dae44415-2a04-4e50-868d-011bff4e9e17",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "d56fc9e4-2edc-4fed-ab3c-80318d89deff",
+    "amount": 266.95,
+    "cardToken": "tok_mastercard_a4154dfc",
+    "currency": "BRL",
+    "merchantId": "ca7ff823-4a31-4f64-8098-4dcf4252af05",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "d8418974-06bd-4151-91f6-08417b91d2c3",
+    "amount": 145.19,
+    "cardToken": "tok_elo_c200ff35",
+    "currency": "BRL",
+    "merchantId": "edc28ab9-14e2-494b-bab3-a0b670bc1eef",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "96777d5a-ef15-486e-99c3-376df0772cd4",
+    "amount": 369.78,
+    "cardToken": "tok_visa_124bdaad",
+    "currency": "BRL",
+    "merchantId": "54875c9a-b412-4945-a2d8-c4aedb288cce",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "6ccab494-e3fa-48a9-896b-2be917e13132",
+    "amount": 335.78,
+    "cardToken": "tok_mastercard_5fbd877d",
+    "currency": "BRL",
+    "merchantId": "9c33c466-d1ae-4c63-a66e-b28c72acc5aa",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "78455290-d67d-4ae8-8d64-8aec48cf646f",
+    "amount": 10.51,
+    "cardToken": "tok_elo_9d1deb70",
+    "currency": "BRL",
+    "merchantId": "07b89fb1-5d05-462a-80bc-0af35adfb432",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "1425cfda-2fbf-4bb9-8356-9c19d4275682",
+    "amount": 36.42,
+    "cardToken": "tok_visa_69dd3e04",
+    "currency": "BRL",
+    "merchantId": "cde8d13d-da5b-4719-80ae-7dc3e4c8e166",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "b58a85c3-ad51-4fc5-aba6-7ecd88085595",
+    "amount": 254.73,
+    "cardToken": "tok_mastercard_49fb2c62",
+    "currency": "BRL",
+    "merchantId": "eaf1f3fa-69bf-4475-9c43-e08a166e5837",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "1fa5ccea-7a9a-4363-844c-ffae98cac0a2",
+    "amount": 242.52,
+    "cardToken": "tok_elo_869236c6",
+    "currency": "BRL",
+    "merchantId": "95f3c47b-3ddd-43fb-9fb6-e712b771ddc0",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "40f819ed-2e5a-4ab4-bc4b-72ff07aaa23e",
+    "amount": 48.2,
+    "cardToken": "tok_visa_84661e9a",
+    "currency": "BRL",
+    "merchantId": "ceebf6a0-2ce6-4d57-bba6-abd7e1a06e62",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "6f61724a-1a7c-400f-93e6-fba0f117a856",
+    "amount": 1000.44,
+    "cardToken": "tok_mastercard_86db7804",
+    "currency": "BRL",
+    "merchantId": "dae44415-2a04-4e50-868d-011bff4e9e17",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "6d6a95d9-5f5e-420b-b9a6-56290d5e8dc3",
+    "amount": 280.47,
+    "cardToken": "tok_elo_8f56d9e4",
+    "currency": "BRL",
+    "merchantId": "ca7ff823-4a31-4f64-8098-4dcf4252af05",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "396eaae4-b34f-473a-af56-0a1d7ce9f823",
+    "amount": 159.23,
+    "cardToken": "tok_visa_9c51f657",
+    "currency": "BRL",
+    "merchantId": "edc28ab9-14e2-494b-bab3-a0b670bc1eef",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "3b5ad3dc-92f6-4c05-af72-8c5e3e1ddf47",
+    "amount": 186.21,
+    "cardToken": "tok_mastercard_27184055",
+    "currency": "BRL",
+    "merchantId": "54875c9a-b412-4945-a2d8-c4aedb288cce",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "ac1c795b-92c7-4ec8-8b1d-1296a105d946",
+    "amount": 293.44,
+    "cardToken": "tok_elo_626b30ce",
+    "currency": "BRL",
+    "merchantId": "9c33c466-d1ae-4c63-a66e-b28c72acc5aa",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "861f1f0f-c9f8-4a12-a27c-2561c3a8ff91",
+    "amount": 21.24,
+    "cardToken": "tok_visa_98417913",
+    "currency": "BRL",
+    "merchantId": "07b89fb1-5d05-462a-80bc-0af35adfb432",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "79787b90-b609-4a26-ba84-f825dea60cdc",
+    "amount": 137.76,
+    "cardToken": "tok_mastercard_1df64e09",
+    "currency": "BRL",
+    "merchantId": "cde8d13d-da5b-4719-80ae-7dc3e4c8e166",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "7e5f977f-631c-4f72-83c4-298c8f75adc3",
+    "amount": 349.15,
+    "cardToken": "tok_elo_4aea8ecc",
+    "currency": "BRL",
+    "merchantId": "eaf1f3fa-69bf-4475-9c43-e08a166e5837",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "9282aa0c-f000-4bf5-bbe4-6c32fb1e6448",
+    "amount": 135.41,
+    "cardToken": "tok_visa_6fd0d097",
+    "currency": "BRL",
+    "merchantId": "95f3c47b-3ddd-43fb-9fb6-e712b771ddc0",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "6a5819af-cdb1-4d8b-939e-16ff716d33d0",
+    "amount": 139.88,
+    "cardToken": "tok_mastercard_ff29d000",
+    "currency": "BRL",
+    "merchantId": "ceebf6a0-2ce6-4d57-bba6-abd7e1a06e62",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "1a28f124-8d08-497c-8973-28993b98819a",
+    "amount": 596.24,
+    "cardToken": "tok_elo_10ef237c",
+    "currency": "BRL",
+    "merchantId": "dae44415-2a04-4e50-868d-011bff4e9e17",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "d56fc9e4-2edc-4fed-ab3c-80318d89deff",
+    "amount": 93.34,
+    "cardToken": "tok_visa_4648f3dd",
+    "currency": "BRL",
+    "merchantId": "ca7ff823-4a31-4f64-8098-4dcf4252af05",
+    "paymentMethod": "CREDIT_CARD"
+  },
+  {
+    "accountId": "d8418974-06bd-4151-91f6-08417b91d2c3",
+    "amount": 151.51,
+    "cardToken": "tok_mastercard_d4dbbd26",
+    "currency": "BRL",
+    "merchantId": "edc28ab9-14e2-494b-bab3-a0b670bc1eef",
+    "paymentMethod": "DEBIT_CARD"
+  },
+  {
+    "accountId": "96777d5a-ef15-486e-99c3-376df0772cd4",
+    "amount": 300.4,
+    "cardToken": "tok_elo_16137ea2",
+    "currency": "BRL",
+    "merchantId": "54875c9a-b412-4945-a2d8-c4aedb288cce",
+    "paymentMethod": "PIX"
+  },
+  {
+    "accountId": "6ccab494-e3fa-48a9-896b-2be917e13132",
+    "amount": 140.72,
+    "cardToken": "tok_visa_1a56dfdb",
+    "currency": "BRL",
+    "merchantId": "9c33c466-d1ae-4c63-a66e-b28c72acc5aa",
+    "paymentMethod": "CREDIT_CARD"
+  }
+]

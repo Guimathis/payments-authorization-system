@@ -54,7 +54,7 @@ class PaymentEventProducerCircuitBreakerTest {
 
         PaymentAuthorizedEvent event = createEvent();
 
-        CompletableFuture<SendResult<String, PaymentAuthorizedEvent>> future =
+        CompletableFuture<SendResult<String, Object>> future =
                 paymentEventProducer.sendPaymentAuthorizedEvent(event);
 
         assertThat(future).isCompleted();
@@ -86,7 +86,7 @@ class PaymentEventProducerCircuitBreakerTest {
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
 
         // A próxima chamada deve retornar future completada excepcionalmente com CallNotPermittedException
-        CompletableFuture<SendResult<String, PaymentAuthorizedEvent>> blockedFuture =
+        CompletableFuture<SendResult<String, Object>> blockedFuture =
                 paymentEventProducer.sendPaymentAuthorizedEvent(event);
 
         assertThat(blockedFuture).isCompletedExceptionally();

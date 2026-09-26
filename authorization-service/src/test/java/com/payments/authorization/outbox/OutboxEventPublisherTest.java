@@ -114,7 +114,7 @@ class OutboxEventPublisherTest {
     @DisplayName("Deve mapear TimeoutException se a future não concluir dentro do tempo limite")
     void shouldMapTimeoutExceptionWhenFutureDoesNotCompleteInTime() {
         OutboxEvent event = createEvent();
-        CompletableFuture<SendResult<String, PaymentAuthorizedEvent>> uncompletedFuture = new CompletableFuture<>();
+        CompletableFuture<SendResult<String, Object>> uncompletedFuture = new CompletableFuture<>();
 
         when(paymentEventProducer.sendPaymentAuthorizedEvent(any(PaymentAuthorizedEvent.class)))
                 .thenReturn(uncompletedFuture);
