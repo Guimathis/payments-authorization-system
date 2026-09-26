@@ -10,8 +10,10 @@ import com.payments.authorization.entity.OutboxStatus;
 import com.payments.authorization.entity.Transaction;
 import com.payments.authorization.entity.TransactionStatus;
 import com.payments.authorization.event.PaymentAuthorizedEvent;
+import com.payments.authorization.metrics.PaymentMetrics;
 import com.payments.authorization.repository.OutboxEventRepository;
 import com.payments.authorization.repository.TransactionRepository;
+import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,9 +30,12 @@ public class PaymentTransactionService {
     private final TransactionRepository transactionRepository;
     private final IdempotencyService idempotencyService;
     private final OutboxEventRepository outboxEventRepository;
+    private final OpenTelemetryService openTelemetryService;
     private final ObjectMapper objectMapper;
+    private final PaymentMetrics paymentMetrics;
 
     @Transactional
+    @Observed(name = "transaction.persist", contextualName = "salvar-transacao-e-outbox")
     public PaymentAuthorizationResponseDto saveTransactionAndCompleteIdempotency(
             String idempotencyKey,
             PaymentAuthorizationRequestDto request,
@@ -78,16 +83,21 @@ public class PaymentTransactionService {
                     .build();
 
             try {
+                String traceHeaders = objectMapper.writeValueAsString(openTelemetryService.captureTraceContext());
+
                 String payloadJson = objectMapper.writeValueAsString(event);
                 OutboxEvent outboxEvent = OutboxEvent.builder()
                         .aggregateType("TRANSACTION")
                         .aggregateId(savedTx.getId().toString())
                         .type("PAYMENT_AUTHORIZED")
                         .payload(payloadJson)
+                        .traceContext(traceHeaders)
                         .status(OutboxStatus.PENDING)
                         .retryCount(0)
                         .createdAt(savedTx.getCreatedAt())
                         .build();
+
+                paymentMetrics.incrementAuthorizationCount(savedTx.getStatus().name(), savedTx.getPaymentMethod());
 
                 outboxEventRepository.save(outboxEvent);
                 log.info("Evento salvo na outbox com status PENDING para paymentId {}", savedTx.getId());

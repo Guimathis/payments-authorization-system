@@ -1,3 +1,8 @@
+x-shared-env: &obs-env
+  MANAGEMENT_OTLP_TRACING_ENDPOINT: http://otel-collector:4318/v1/traces
+  MANAGEMENT_OTLP_LOGGING_ENDPOINT: http://otel-collector:4318/v1/logs
+  OTEL_LOGS_EXPORTER: otlp
+
 services:
   postgres-auth:
     image: postgres:16-alpine
@@ -70,6 +75,7 @@ services:
     ports:
       - "8082:8082"
     environment:
+      <<: *obs-env
       SERVER_PORT: 8082
       MANAGEMENT_OTLP_TRACING_ENDPOINT: http://otel-collector:4318/v1/traces
     networks:
@@ -81,6 +87,7 @@ services:
     ports:
       - "8081:8081"
     environment:
+      <<: *obs-env
       SERVER_PORT: 8081
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-auth:5432/payments_auth_db
       SPRING_DATASOURCE_USERNAME: postgres
@@ -110,7 +117,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       STRICT_BALANCE_CHECK: "false"
-      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://otel-collector:4318/v1/traces
+      <<: *obs-env
     depends_on:
       postgres-ledger:
         condition: service_healthy
@@ -125,6 +132,7 @@ services:
     ports:
       - "8084:8084"
     environment:
+      <<: *obs-env
       SERVER_PORT: 8084
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       MANAGEMENT_OTLP_TRACING_ENDPOINT: http://otel-collector:4318/v1/traces
@@ -140,6 +148,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      <<: *obs-env
       SERVER_PORT: 8080
       AUTHORIZATION_SERVICE_URL: http://authorization-service:8081
       ANTIFRAUD_SERVICE_URL: http://antifraud-service:8082
@@ -166,29 +175,57 @@ services:
     networks:
       - payments-net
 
-  tempo:
-    image: grafana/tempo:2.6.0
-    container_name: tempo
-    command: ["-config.file=/etc/tempo.yml"]
-    volumes:
-      - ./docker/tempo/tempo.yml:/etc/tempo.yml
-      - tempo_data:/var/tempo
-    ports:
-      - "3200:3200"
-    networks:
-      - payments-net
-
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.108.0
     container_name: otel-collector
+    image: otel/opentelemetry-collector-contrib:latest
     command: ["--config=/etc/otel-collector-config.yml"]
     volumes:
       - ./docker/otel-collector/otel-collector-config.yml:/etc/otel-collector-config.yml
     ports:
-      - "4317:4317"
-      - "4318:4318"
-      - "8888:8888"
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    networks:
+      - payments-net
+
+  loki:
+    image: grafana/loki:3.5.5
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./docker/loki/loki-config.yml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - payments-net
+
+  tempo:
+    image: grafana/tempo:2.6.0
+    container_name: tempo
+    command: [ "-config.file=/etc/tempo.yml" ]
+    volumes:
+      - ./docker/tempo/tempo.yml:/etc/tempo.yml
+      - tempo_data:/var/tempo
+    ports:
+      - "3200:3200" # Porta interna do Tempo para o Grafana
+    networks:
+      - payments-net
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./docker/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./docker/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
+      - prometheus
       - tempo
     networks:
       - payments-net
@@ -205,25 +242,12 @@ services:
       - prometheus_data:/prometheus
     ports:
       - "9090:9090"
-    networks:
-      - payments-net
-
-  grafana:
-    image: grafana/grafana:11.2.0
-    container_name: grafana
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-    volumes:
-      - ./docker/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./docker/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
-      - grafana_data:/var/lib/grafana
-    ports:
-      - "3000:3000"
-    depends_on:
-      - prometheus
-      - tempo
+    extra_hosts:
+      - "authorization-service:host-gateway"
+      - "gateway-service:host-gateway"
+      - "antifraud-service:host-gateway"
+      - "ledger-service:host-gateway"
+      - "notification-service:host-gateway"
     networks:
       - payments-net
 
@@ -235,5 +259,6 @@ volumes:
   postgres_auth_data:
   postgres_ledger_data:
   tempo_data:
-  prometheus_data:
   grafana_data:
+  loki_data:
+  prometheus_data:

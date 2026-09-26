@@ -4,6 +4,7 @@ import com.payments.authorization.dto.PaymentAuthorizationRequestDto;
 import com.payments.authorization.dto.PaymentAuthorizationResponseDto;
 import com.payments.authorization.dto.PaymentResult;
 import com.payments.authorization.service.PaymentAuthorizationService;
+import io.opentelemetry.api.trace.Span;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

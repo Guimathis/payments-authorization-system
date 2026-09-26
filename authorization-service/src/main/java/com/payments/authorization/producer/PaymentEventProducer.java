@@ -1,6 +1,7 @@
 package com.payments.authorization.producer;
 
 import com.payments.authorization.event.PaymentAuthorizedEvent;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,13 +10,14 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class PaymentEventProducer {
 
-    private final KafkaTemplate<String, PaymentAuthorizedEvent> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Value("${app.kafka.topics.transacao-autorizada:transacao-autorizada}")
     private String transacaoAutorizadaTopic;
@@ -23,38 +25,16 @@ public class PaymentEventProducer {
     @Value("${app.kafka.producer.send-timeout-ms:3000}")
     private long sendTimeoutMs;
 
-    public SendResult<String, PaymentAuthorizedEvent> sendPaymentAuthorizedEventSync(PaymentAuthorizedEvent event) throws Exception {
-        String partitionKey = event.getAccountId() != null ? event.getAccountId().toString() : event.getPaymentId().toString();
+    @CircuitBreaker(name = "kafkaProducer")
+    public CompletableFuture<SendResult<String, Object>> sendPaymentAuthorizedEvent(PaymentAuthorizedEvent payloadEvent) {
+        String partitionKey = payloadEvent.getAccountId() != null
+                ? payloadEvent.getAccountId().toString()
+                : payloadEvent.getPaymentId().toString();
 
-        log.info("Publicando evento síncrono PaymentAuthorizedEvent no tópico {}. Chave: {}, PaymentId: {}",
-                transacaoAutorizadaTopic, partitionKey, event.getPaymentId());
+        log.debug("Publicando evento no tópico {}. Chave: {}, PaymentId: {}",
+                transacaoAutorizadaTopic, partitionKey, payloadEvent.getPaymentId());
 
-        CompletableFuture<SendResult<String, PaymentAuthorizedEvent>> future =
-                kafkaTemplate.send(transacaoAutorizadaTopic, partitionKey, event);
-
-        SendResult<String, PaymentAuthorizedEvent> result = future.get(sendTimeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS);
-        log.info("Confirmação de ACK recebida do broker Kafka para paymentId {}. Offset: {}, Partição: {}",
-                event.getPaymentId(), result.getRecordMetadata().offset(), result.getRecordMetadata().partition());
-        return result;
+        return kafkaTemplate.send(transacaoAutorizadaTopic, partitionKey, payloadEvent);
     }
 
-    public void sendPaymentAuthorizedEvent(PaymentAuthorizedEvent event) {
-        String partitionKey = event.getAccountId() != null ? event.getAccountId().toString() : event.getPaymentId().toString();
-
-        log.info("Publicando evento PaymentAuthorizedEvent no tópico {}. Chave: {}, PaymentId: {}",
-                transacaoAutorizadaTopic, partitionKey, event.getPaymentId());
-
-        CompletableFuture<SendResult<String, PaymentAuthorizedEvent>> future =
-                kafkaTemplate.send(transacaoAutorizadaTopic, partitionKey, event);
-
-        future.whenComplete((result, ex) -> {
-            if (ex == null) {
-                log.info("Evento PaymentAuthorizedEvent publicado com sucesso. Offset: {}, Partição: {}",
-                        result.getRecordMetadata().offset(), result.getRecordMetadata().partition());
-            } else {
-                log.error("Erro ao publicar evento PaymentAuthorizedEvent para paymentId {}: {}",
-                        event.getPaymentId(), ex.getMessage(), ex);
-            }
-        });
-    }
 }

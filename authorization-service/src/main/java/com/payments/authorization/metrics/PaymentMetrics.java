@@ -21,11 +21,18 @@ public class PaymentMetrics {
     private final OutboxEventRepository outboxEventRepository;
 
     @PostConstruct
-    public void registerGauges() {
-        Gauge.builder("outbox.pending.gauge", outboxEventRepository, repo -> repo.countByStatus(OutboxStatus.PENDING))
-                .description("Número de eventos pendentes na tabela outbox_events")
+    public void registerMetrics() {
+        Gauge.builder("outbox.pending.events", outboxEventRepository, repo -> repo.countByStatus(OutboxStatus.PENDING))
+                .description("Quantidade de eventos pendentes na tabela Outbox")
                 .register(meterRegistry);
-        log.info("Métrica 'outbox.pending.gauge' registrada com sucesso no MeterRegistry");
+
+        Gauge.builder("outbox.failed.events", outboxEventRepository, repo -> repo.countByStatus(OutboxStatus.FAILED))
+                .description("Quantidade de eventos pendentes na tabela Outbox")
+                .register(meterRegistry);
+
+        Gauge.builder("outbox.sent.events", outboxEventRepository, repo -> repo.countByStatus(OutboxStatus.SENT))
+                .description("Quantidade de eventos pendentes na tabela Outbox")
+                .register(meterRegistry);
     }
 
     public void incrementAuthorizationCount(String status, String paymentMethod) {
@@ -40,15 +47,6 @@ public class PaymentMetrics {
         Timer.Sample sample = Timer.start(meterRegistry);
         try {
             return supplier.get();
-        } finally {
-            sample.stop(meterRegistry.timer("antifraud.evaluation.duration"));
-        }
-    }
-
-    public void recordAntifraudEvaluation(Runnable runnable) {
-        Timer.Sample sample = Timer.start(meterRegistry);
-        try {
-            runnable.run();
         } finally {
             sample.stop(meterRegistry.timer("antifraud.evaluation.duration"));
         }
