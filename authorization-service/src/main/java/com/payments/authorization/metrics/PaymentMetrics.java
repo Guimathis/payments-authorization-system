@@ -22,16 +22,16 @@ public class PaymentMetrics {
 
     @PostConstruct
     public void registerMetrics() {
-        Gauge.builder("outbox.pending.events", outboxEventRepository, repo -> repo.countByStatus(OutboxStatus.PENDING))
+        Gauge.builder("outbox.pending.gauge", outboxEventRepository, repo -> repo.countByStatus(OutboxStatus.PENDING))
                 .description("Quantidade de eventos pendentes na tabela Outbox")
                 .register(meterRegistry);
 
         Gauge.builder("outbox.failed.events", outboxEventRepository, repo -> repo.countByStatus(OutboxStatus.FAILED))
-                .description("Quantidade de eventos pendentes na tabela Outbox")
+                .description("Quantidade de eventos com falha na tabela Outbox")
                 .register(meterRegistry);
 
         Gauge.builder("outbox.sent.events", outboxEventRepository, repo -> repo.countByStatus(OutboxStatus.SENT))
-                .description("Quantidade de eventos pendentes na tabela Outbox")
+                .description("Quantidade de eventos enviados na tabela Outbox")
                 .register(meterRegistry);
     }
 

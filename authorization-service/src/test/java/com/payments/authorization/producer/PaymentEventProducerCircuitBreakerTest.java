@@ -36,7 +36,7 @@ class PaymentEventProducerCircuitBreakerTest {
     private CircuitBreakerRegistry circuitBreakerRegistry;
 
     @MockBean
-    private KafkaTemplate<String, PaymentAuthorizedEvent> kafkaTemplate;
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
     private CircuitBreaker circuitBreaker;
 
@@ -65,10 +65,10 @@ class PaymentEventProducerCircuitBreakerTest {
     @Test
     @DisplayName("Deve abrir o circuito (OPEN) ao atingir taxa de falha com erros de Timeout do Kafka e retornar CallNotPermittedException")
     void shouldOpenCircuitWhenFailureThresholdExceeded() {
-        CompletableFuture<SendResult<String, PaymentAuthorizedEvent>> failedFuture1 = new CompletableFuture<>();
+        CompletableFuture<SendResult<String, Object>> failedFuture1 = new CompletableFuture<>();
         failedFuture1.completeExceptionally(new TimeoutException("Kafka broker timeout 1"));
 
-        CompletableFuture<SendResult<String, PaymentAuthorizedEvent>> failedFuture2 = new CompletableFuture<>();
+        CompletableFuture<SendResult<String, Object>> failedFuture2 = new CompletableFuture<>();
         failedFuture2.completeExceptionally(new TimeoutException("Kafka broker timeout 2"));
 
         when(kafkaTemplate.send(any(), any(), any()))

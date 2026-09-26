@@ -28,7 +28,7 @@ class PaymentMetricsTest {
     void setUp() {
         meterRegistry = new SimpleMeterRegistry();
         paymentMetrics = new PaymentMetrics(meterRegistry, outboxEventRepository);
-        paymentMetrics.registerGauges();
+        paymentMetrics.registerMetrics();
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.payments.gateway.metrics;
+package com.payments.gateway.config;
 
 import io.micrometer.core.instrument.config.MeterFilter;
 import org.springframework.context.annotation.Bean;
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 public class MetricsConfig {
 
     @Bean
-    public MeterFilter ignoreActuatorMetrics() {
+    public MeterFilter ignoreActuatorMeterFilter() {
         return MeterFilter.deny(id -> {
             String uri = id.getTag("uri");
             return uri != null && uri.startsWith("/actuator");
