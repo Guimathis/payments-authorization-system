@@ -68,6 +68,13 @@ flowchart TD
 docker compose up --build
 ```
 
+### Opção 2: Executando teste de carga com Toxiproxy e k6s
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.chaos.yml up -d
+```
+
+
 Serviços iniciados:
 - `postgres-auth`: PostgreSQL 16 para autorizações na porta `5432`
 - `postgres-ledger`: PostgreSQL 16 para o ledger na porta `5433`

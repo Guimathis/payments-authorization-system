@@ -29,15 +29,19 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  cloud:
     openfeign:
       micrometer:
         enabled: true
       client:
         config:
           default:
-            connect-timeout: 800
-            read-timeout: 800
-            logger-level: basic
+            connect-timeout: 5000
+            read-timeout: 5000
+            logger-level: FULL
+          antifraud-service:
+            connect-timeout: 5000
+            read-timeout: 5000
 
 app:
   kafka:
@@ -55,6 +59,7 @@ app:
 antifraud:
   service:
     url: ${ANTIFRAUD_SERVICE_URL:http://localhost:8082}
+
 
 resilience4j:
   circuitbreaker:
@@ -111,7 +116,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics,prometheus,circuitbreakers
   endpoint:
     health:
       show-details: always
@@ -133,7 +138,9 @@ management:
     distribution:
       percentiles-histogram:
         http.server.requests: true
-
+  health:
+    circuitbreakers:
+      enabled: true
 logging:
   level:
     root: INFO

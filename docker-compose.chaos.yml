@@ -1,0 +1,22 @@
+services:
+  toxiproxy:
+    image: ghcr.io/shopify/toxiproxy:2.12.0
+    container_name: toxiproxy
+    mem_limit: 100m
+    command: ["-host=0.0.0.0", "-config=/config/toxiproxy.json"]
+    volumes:
+      - ./docker/toxiproxy/config/toxiproxy.json:/config/toxiproxy.json
+    ports:
+      - "8474:8474"
+      - "8482:8482"
+    depends_on:
+      - antifraud-service
+    networks:
+      - payments-net
+
+  authorization-service:
+    environment:
+      ANTIFRAUD_SERVICE_URL: http://toxiproxy:8482 # Sobrescreve
+    depends_on:
+      toxiproxy:
+        condition: service_started

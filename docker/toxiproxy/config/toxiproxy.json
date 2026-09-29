@@ -1,0 +1,8 @@
+[
+  {
+    "name": "antifraud_proxy",
+    "listen": "0.0.0.0:8482",
+    "upstream": "antifraud-service:8082",
+    "enabled": true
+  }
+]

@@ -21,15 +21,15 @@ public class AntifraudEvaluationService {
 
     public AntifraudEvaluationResponseDto evaluate(AntifraudEvaluationRequestDto request, Long delayMs) {
         log.info("Recebida requisição de análise de risco para conta: {}, valor: {}", request.getAccountId(), request.getAmount());
-        if (delayMs != null && delayMs > 0) {
-            try {
-                log.info("Simulando atraso de resposta de {} ms no antifraude", delayMs);
-                Thread.sleep(delayMs);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.warn("Simulação de delay interrompida", e);
-            }
-        }
+//        if (delayMs != null && delayMs > 0) {
+//            try {
+//                log.info("Simulando atraso de resposta de {} ms no antifraude", delayMs);
+//                Thread.sleep(delayMs);
+//            } catch (InterruptedException e) {
+//                Thread.currentThread().interrupt();
+//                log.warn("Simulação de delay interrompida", e);
+//            }
+//        }
 
         boolean isHighRisk = request.getAmount().compareTo(MAX_SAFE_AMOUNT) > 0
                 || Boolean.TRUE.equals(request.getSuspicious());
