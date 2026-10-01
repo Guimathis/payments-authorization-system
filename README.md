@@ -1,4 +1,4 @@
-# Sistema de Autorização de Pagamentos com Antifraude e Mensageria Distribuída
+# Sistema de Autorização de Pagamentos com Antifraude e Mensageria
 
 <p align="center">
   <img src="https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21" />
