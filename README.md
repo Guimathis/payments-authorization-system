@@ -9,6 +9,7 @@
   <img src="https://img.shields.io/badge/OpenTelemetry-0.108-4B52B7?style=for-the-badge&logo=opentelemetry&logoColor=white" alt="OpenTelemetry" />
   <img src="https://img.shields.io/badge/Prometheus-v2.54-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" alt="Prometheus" />
   <img src="https://img.shields.io/badge/Grafana-11.2-F46800?style=for-the-badge&logo=grafana&logoColor=white" alt="Grafana" />
+  <img src="https://img.shields.io/badge/Loki-3.5-F46800?style=for-the-badge&logo=grafana&logoColor=white" alt="Grafana Loki" />
   <img src="https://img.shields.io/badge/Resilience4j-2.2.0-F1502F?style=for-the-badge" alt="Resilience4j" />
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
   <img src="https://img.shields.io/badge/Swagger_OpenAPI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger" />
@@ -45,11 +46,13 @@ flowchart TD
     end
 
     subgraph Observabilidade ["Observabilidade & RED Metrics (Fase 4)"]
-        Gateway & Auth & Antifraud & Ledger & Notification -->|"Spans OTLP (4318 HTTP)"| OTelCol["OTel Collector (:4317/:4318)"]
+        Gateway & Auth & Antifraud & Ledger & Notification -->|"Spans e Logs OTLP (4318 HTTP)"| OTelCol["OTel Collector (:4317/:4318)"]
         OTelCol -->|"OTLP gRPC (4317)"| Tempo[("Grafana Tempo (:3200)<br/>Distributed Tracing")]
+        OTelCol -->|"OTLP HTTP (3100)"| Loki[("Grafana Loki (:3100)<br/>Central de Logs")]
         Prometheus[("Prometheus (:9090)<br/>Scrape /actuator/prometheus")] -.->|"Scrape 5s"| Gateway & Auth & Antifraud & Ledger & Notification
-        Grafana["Grafana (:3000)<br/>Dashboard RED & Tracing"] -->|"Query Metrics"| Prometheus
+        Grafana["Grafana (:3000)<br/>Dashboards, Tracing & Logs"] -->|"Query Metrics"| Prometheus
         Grafana -->|"Query Traces"| Tempo
+        Grafana -->|"Query Logs"| Loki
     end
 ```
 
@@ -87,8 +90,9 @@ Serviços iniciados:
 - `gateway-service`: API Gateway unificado na porta `8080`
 - `otel-collector`: OpenTelemetry Collector nas portas `4317` (gRPC), `4318` (HTTP) e `8888` (Metrics)
 - `tempo`: Grafana Tempo (Distributed Tracing) na porta `3200`
+- `loki`: Grafana Loki (Central de Logs OTLP) na porta `3100`
 - `prometheus`: Prometheus TSDB na porta `9090`
-- `grafana`: Grafana Dashboards e Tracing UI na porta `3000` (admin/admin)
+- `grafana`: Grafana Dashboards, Tracing e Logs UI na porta `3000` (admin/admin)
 
 ### Opção 2: Executando localmente via Maven
 
@@ -234,12 +238,13 @@ curl -X GET http://localhost:8080/api/v1/accounts/3fa85f64-5717-4562-b3fc-2c963f
 
 ---
 
-## 📊 Observabilidade, RED Metrics & Tracing Distribuído (Fase 4)
+## 📊 Observabilidade, RED Metrics, Tracing & Logs (Fase 4)
 
 O sistema conta com monitoramento integral de ponta a ponta:
 
 1. **Grafana Dashboards:** `http://localhost:3000` (Usuário: `admin`, Senha: `admin`)
-   - **Dashboard Consolidado RED:** `Payments Authorization — Observabilidade & RED Metrics`
+   - **Dashboard RED Metrics & Visão Geral:** `Payments Authorization — Observabilidade & RED Metrics`
+     - **Status dos Serviços:** Indicadores de disponibilidade em tempo real (`UP` / `DOWN`).
      - **Rate (Vazão):** Throughput em tempo real por microsserviço (`req/s`).
      - **Errors (Erros):** Taxa de erro HTTP (4xx e 5xx) e contadores de falhas.
      - **Duration (Latência):** Percentis de resposta p50, p95 e p99 (`http_server_requests_seconds`).
@@ -247,10 +252,37 @@ O sistema conta com monitoramento integral de ponta a ponta:
        - `payments.authorized.count`: Contador segmentado por `status` (APPROVED, REJECTED, FAILED) e `payment_method`.
        - `antifraud.evaluation.duration`: Histograma de latência de avaliação com o antifraude.
        - `outbox.pending.gauge`: Monitoramento em tempo real de mensagens pendentes no Transactional Outbox.
-2. **Distributed Tracing (Grafana Tempo & OTel):**
+     - **Painel de Tracing Integrado:** Tabela com os traces recentes do Grafana Tempo diretamente no dashboard.
+2. **Distributed Tracing (Grafana Tempo & OpenTelemetry):**
    - Propagação de contexto no padrão W3C (`traceparent`) desde a requisição de entrada no `gateway-service`, passando pelo `authorization-service`, chamada Feign ao `antifraud-service`, publicação no Kafka com headers de registro, até o consumo no `ledger-service` e `notification-service`.
    - Pesquisa de traces diretamente pelo Grafana Explore via datasource Tempo (`http://tempo:3200`).
-3. **Prometheus Metrics:** `http://localhost:9090`
+3. **Centralização de Logs Estruturados (Grafana Loki):**
+   - Ingestão nativa OTLP via OpenTelemetry Collector (`http://loki:3100/otlp`).
+   - Logs enriquecidos com metadados estruturados: `trace_id`, `span_id`, `level`, `service_name`, e atributos de erro (`exception.type`, `exception.message`, `exception.stacktrace`).
+   - Navegação integrada de logs para traces (botão direto para o Tempo a partir do `trace_id`).
+4. **Prometheus Metrics:** `http://localhost:9090`
    - Scrape ativo a cada 5s de todos os endpoints `/actuator/prometheus`.
-4. **Kafka UI:** `http://localhost:8085`
+5. **Kafka UI:** `http://localhost:8085`
    - Inspeção visual de tópicos (`transacao-autorizada`, `transacao-autorizada.DLQ`), partições, offsets e consumer groups.
+
+---
+
+### 📸 Evidências de Observabilidade em Ação
+
+#### 1. Dashboard Principal (RED Metrics, Métricas de Negócio & Status dos Microsserviços)
+
+Visão em tempo real da vazão, latência e métricas de negócio do sistema durante o processamento de pagamentos:
+
+![Dashboard RED Metrics e Métricas de Negócio](docs/images/grafana-red-metrics-dashboard.png)
+
+#### 2. Distributed Tracing de Ponta a Ponta (Grafana Tempo)
+
+Visão em cascata (waterfall) detalhando a propagação do contexto W3C e a duração de cada etapa da requisição (`Gateway -> Authorization -> Antifraud -> Kafka -> Ledger/Notification`):
+
+![Distributed Tracing de Ponta a Ponta no Grafana Tempo](docs/images/grafana-tempo-distributed-tracing.png)
+
+#### 3. Monitoramento de Falhas, Resiliência e Logs Estruturados (Grafana Loki)
+
+Comportamento do sistema durante teste de resiliência (Chaos Test). Com o `antifraud-service` indisponível (**DOWN**), o autorizador ativa a contingência para pagamentos de baixo valor e o Grafana Loki registra o erro detalhado com causa raiz, stack trace completo e vínculo direto com o trace no Tempo:
+
+![Centralização de Logs no Grafana Loki e Fallback Contingencial](docs/images/grafana-loki-logs-and-resilience.png)

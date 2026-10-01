@@ -35,7 +35,7 @@ public class AntifraudIntegrationService {
 
     public AntifraudEvaluationResponseDto evaluateFallback(AntifraudEvaluationRequestDto request, Throwable ex) {
         log.warn("Falha ou timeout na comunicação com antifraud-service. Acionando fallback contingencial. Causa: {}",
-                ex.getMessage());
+                ex.getMessage(), ex);
 
         boolean approvedInContingency = request.getAmount().compareTo(CONTINGENCY_MAX_AMOUNT) <= 0;
 

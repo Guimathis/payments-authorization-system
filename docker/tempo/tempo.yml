@@ -17,3 +17,11 @@ storage:
       path: /var/tempo/traces
     wal:
       path: /var/tempo/wal
+
+compactor:
+  compaction:
+    compaction_window: 1h
+    max_block_bytes: 104857600
+    block_retention: 24h
+    compaction_cycle: 30s
+

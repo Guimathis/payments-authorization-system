@@ -53,7 +53,7 @@ public class PaymentAuthorizationService {
             return new PaymentResult(responseDto, false);
 
         } catch (Exception ex) {
-            log.error("Falha durante o processamento da transação com chave {}: {}", idempotencyKey, ex.getMessage());
+            log.error("Falha durante o processamento da transação com chave {}: {}", idempotencyKey, ex.getMessage(), ex);
             paymentMetrics.incrementAuthorizationCount("FAILED", request.getPaymentMethod() != null ? request.getPaymentMethod() : "UNKNOWN");
             idempotencyService.markAsFailed(idempotencyKey);
             throw ex;
